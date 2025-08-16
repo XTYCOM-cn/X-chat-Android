@@ -1,0 +1,409 @@
+Date/Time:       2025-08-16 20:45:44 
+Command line:    C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\briefcase create android
+
+OS Release:      Windows 11
+OS Version:      10.0.22631
+Architecture:    AMD64
+Platform:        Windows-11-10.0.22631-SP0
+
+Python exe:      C:\Users\user\AppData\Local\Programs\Python\Python312\python.exe
+Python version:  3.12.8 (tags/v3.12.8:2dc476b, Dec  3 2024, 19:30:04) [MSC v.1942 64 bit (AMD64)]
+Virtual env:     False
+Conda env:       False
+
+Briefcase:       0.3.24
+Target platform: android
+Target format:   gradle
+
+Environment Variables:
+	ACSETUPSVCPORT=23210
+	ACSVCPORT=17532
+	AHA_CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_14744_QRDONCMWPJPTDVZJ
+	ALLUSERSPROFILE=C:\ProgramData
+	APPDATA=C:\Users\user\AppData\Roaming
+	BUNDLED_DEBUGPY_PATH=c:\Users\user\.trae\extensions\ms-python.debugpy-2025.6.0-win32-x64\bundled\libs\debugpy
+	COLORTERM=truecolor
+	COMMONPROGRAMFILES=C:\Program Files\Common Files
+	COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files
+	COMMONPROGRAMW6432=C:\Program Files\Common Files
+	COMPUTERNAME=DELLG15
+	COMSPEC=C:\WINDOWS\system32\cmd.exe
+	CUDA_PATH=V:\
+	CUDA_PATH_V10_1=V:\
+	DRIVERDATA=C:\Windows\System32\Drivers\DriverData
+	EFC_18224=1
+	ENABLELOG=INFO
+	HOMEDRIVE=C:
+	HOMEPATH=\Users\user
+	INTEL_DEV_REDIST=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
+	LANG=zh_CN.UTF-8
+	LOCALAPPDATA=C:\Users\user\AppData\Local
+	LOGONSERVER=\\DELLG15
+	NUMBER_OF_PROCESSORS=16
+	NVCUDASAMPLES10_1_ROOT=V:\
+	NVCUDASAMPLES_ROOT=V:\
+	NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt\
+	OLLAMA_MODELS=E:\ollama\ollamaimagers
+	ONEDRIVE=C:\Users\user\OneDrive
+	ONEDRIVECONSUMER=C:\Users\user\OneDrive
+	ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+	OS=Windows_NT
+	PATH=C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;V:\\bin;V:\\libnvvp;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Bandizip\;C:\Program Files (x86)\dotnet\;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.1\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Apps\;C:\Program Files\Git\cmd;C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python312\;C:\Users\user\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python311\;C:\Users\user\AppData\Local\Microsoft\WindowsApps;V:\PyCharm Community Edition 2023.1.3\bin;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Users\user\.lmstudio\bin;D:\ffmpeg-master-latest-win64-gpl\bin;C:\Users\user\AppData\Roaming\npm;E:\ollama;C:\Program Files\Git\cmd
+	PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL
+	PROCESSOR_ARCHITECTURE=AMD64
+	PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 165 Stepping 2, GenuineIntel
+	PROCESSOR_LEVEL=6
+	PROCESSOR_REVISION=a502
+	PROGRAMDATA=C:\ProgramData
+	PROGRAMFILES=C:\Program Files
+	PROGRAMFILES(X86)=C:\Program Files (x86)
+	PROGRAMW6432=C:\Program Files
+	PSMODULEPATH=C:\Users\user\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+	PUBLIC=C:\Users\Public
+	PYCHARM COMMUNITY EDITION=V:\PyCharm Community Edition 2023.1.3\bin;
+	PYDEVD_DISABLE_FILE_VALIDATION=1
+	RLSSVCPORT=22112
+	SESSIONNAME=Console
+	SYSTEMDRIVE=C:
+	SYSTEMROOT=C:\WINDOWS
+	TEMP=C:\Users\user\AppData\Local\Temp
+	TERM_PRODUCT=Trae
+	TERM_PROGRAM=vscode
+	TERM_PROGRAM_VERSION=1.100.3
+	TMP=C:\Users\user\AppData\Local\Temp
+	TRAE_AI_SHELL_ID=28
+	USERDOMAIN=DELLG15
+	USERDOMAIN_ROAMINGPROFILE=DELLG15
+	USERNAME=user
+	USERPROFILE=C:\Users\user
+	VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=c:\Users\user\.trae\extensions\ms-python.debugpy-2025.6.0-win32-x64\.noConfigDebugAdapterEndpoints\endpoint-8809539ed22a285f.txt
+	VSCODE_ENV_PREPEND=PATH=c\x3a\\Users\\user\\.trae\\sdks\\workspaces\\59b3c760\\versions\\node\\current;c\x3a\\Users\\user\\.trae\\sdks\\versions\\node\\current;
+	VSCODE_INJECTION=1
+	VSCODE_NONCE=65e8cdc4-4599-485b-9a89-ae6861c81b27
+	VSCODE_STABLE=1
+	WINDIR=C:\WINDOWS
+	ZES_ENABLE_SYSMAN=1
+
+pyproject.toml:
+[build-system]
+requires = ["briefcase"]
+
+[project]
+name = "xchat"
+version = "1.0.0"
+description = "X-chat Android App"
+authors = [{name = "User", email = "user@example.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+
+[tool.briefcase]
+bundle = "com.example"
+project_name = "xchat"
+
+[tool.briefcase.app.xchat]
+formal_name = "X-chat"
+sources = ["xchat"]
+test_sources = ["tests"]
+
+requires = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+test_requires = []
+
+[tool.briefcase.app.xchat.android]
+base_theme = "Theme.MaterialComponents.Light.DarkActionBar"
+build_gradle_dependencies = []
+build_gradle_extra_content = ""
+system_requires = []
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+]
+
+Briefcase Log:
+[20:45:43]                                                                                                                                                            __main__.py:42
+           Briefcase requires git, but it is not installed (or is not on your PATH). Visit:                                                                           __main__.py:43
+                                                                                                                                                                      __main__.py:43
+               https://git-scm.com/                                                                                                                                   __main__.py:43
+                                                                                                                                                                      __main__.py:43
+           to download and install git manually.                                                                                                                      __main__.py:43
+                                                                                                                                                                      __main__.py:43
+           If you have installed git recently and are still getting this error, you may                                                                               __main__.py:43
+           need to restart your terminal session.                                                                                                                     __main__.py:43
+           Saving log... started                                                                                                                                      console.py:433
+
+Main thread traceback:
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\__init__.py:296 in <module>                                                                          │
+│                                                                                                                                                                                  │
+│   293                                                                                                                                                                            │
+│   294                                                                                                                                                                            │
+│   295 try:                                                                                                                                                                       │
+│ ❱ 296 │   refresh()                                                                                                                                                              │
+│   297 except Exception as _exc:                                                                                                                                                  │
+│   298 │   raise ImportError("Failed to initialize: {0}".format(_exc)) from _exc                                                                                                  │
+│   299                                                                                                                                                                            │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────────────────╮                    │
+│ │           cmd = <module 'git.cmd' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\cmd.py'>                   │                    │
+│ │        compat = <module 'git.compat' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\compat.py'>             │                    │
+│ │        config = <module 'git.config' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\config.py'>             │                    │
+│ │            db = <module 'git.db' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\db.py'>                     │                    │
+│ │          diff = <module 'git.diff' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\diff.py'>                 │                    │
+│ │           exc = <module 'git.exc' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\exc.py'>                   │                    │
+│ │        GIT_OK = False                                                                                                                                     │                    │
+│ │         INDEX = <DiffConstants.INDEX: 2>                                                                                                                  │                    │
+│ │         index = <module 'git.index' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\index\\__init__.py'>     │                    │
+│ │          List = typing.List                                                                                                                               │                    │
+│ │     NULL_TREE = <DiffConstants.NULL_TREE: 1>                                                                                                              │                    │
+│ │       objects = <module 'git.objects' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\objects\\__init__.py'> │                    │
+│ │      Optional = typing.Optional                                                                                                                           │                    │
+│ │      PathLike = typing.Union[str, ForwardRef('os.PathLike[str]')]                                                                                         │                    │
+│ │          refs = <module 'git.refs' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\refs\\__init__.py'>       │                    │
+│ │        remote = <module 'git.remote' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\remote.py'>             │                    │
+│ │          repo = <module 'git.repo' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\repo\\__init__.py'>       │                    │
+│ │      Sequence = typing.Sequence                                                                                                                           │                    │
+│ │         Tuple = typing.Tuple                                                                                                                              │                    │
+│ │ TYPE_CHECKING = False                                                                                                                                     │                    │
+│ │         types = <module 'git.types' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\types.py'>               │                    │
+│ │         Union = typing.Union                                                                                                                              │                    │
+│ │      warnings = <module 'warnings' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\warnings.py'>                                 │                    │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                    │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\__init__.py:287 in refresh                                                                           │
+│                                                                                                                                                                                  │
+│   284 │   global GIT_OK                                                                        ╭── locals ───╮                                                                   │
+│   285 │   GIT_OK = False                                                                       │ path = None │                                                                   │
+│   286 │                                                                                        ╰─────────────╯                                                                   │
+│ ❱ 287 │   if not Git.refresh(path=path):                                                                                                                                         │
+│   288 │   │   return                                                                                                                                                             │
+│   289 │   if not FetchInfo.refresh():  # noqa: F405                                                                                                                              │
+│   290 │   │   return  # type: ignore[unreachable]                                                                                                                                │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:860 in refresh                                                                                │
+│                                                                                                                                                                                  │
+│    857 │   │   │   │   │   if mode in warn:                                                                                                                                      │
+│    858 │   │   │   │   │   │   _logger.critical(err)                                                                                                                             │
+│    859 │   │   │   │   │   else:                                                                                                                                                 │
+│ ❱  860 │   │   │   │   │   │   raise ImportError(err)                                                                                                                            │
+│    861 │   │   │   │   else:                                                                                                                                                     │
+│    862 │   │   │   │   │   err = dedent(                                                                                                                                         │
+│    863 │   │   │   │   │   │   """\                                                                                                                                              │
+│                                                                                                                                                                                  │
+│ ╭────────────────────────────────────────────────── locals ───────────────────────────────────────────────────╮                                                                  │
+│ │               err = 'Bad git executable.\nThe git executable must be specified in one of the following'+633 │                                                                  │
+│ │             error = ['error', 'e', 'exception', 'raise', 'r', '2']                                          │                                                                  │
+│ │           has_git = False                                                                                   │                                                                  │
+│ │              mode = 'raise'                                                                                 │                                                                  │
+│ │           new_git = 'git'                                                                                   │                                                                  │
+│ │           old_git = None                                                                                    │                                                                  │
+│ │ old_refresh_token = <object object at 0x0000027571069D60>                                                   │                                                                  │
+│ │              path = None                                                                                    │                                                                  │
+│ │             quiet = ['quiet', 'q', 'silence', 's', 'silent', 'none', 'n', '0']                              │                                                                  │
+│ │              warn = ['warn', 'w', 'warning', 'log', 'l', '1']                                               │                                                                  │
+│ ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ImportError: Bad git executable.
+The git executable must be specified in one of the following ways:
+    - be included in your $PATH
+    - be set via $GIT_PYTHON_GIT_EXECUTABLE
+    - explicitly set via git.refresh(<full-path-to-git-executable>)
+
+All git commands will error until this is rectified.
+
+This initial message can be silenced or aggravated in the future by setting the
+$GIT_PYTHON_REFRESH environment variable. Use one of the following values:
+    - quiet|q|silence|s|silent|none|n|0: for no message or exception
+    - warn|w|warning|log|l|1: for a warning message (logging level CRITICAL, displayed by default)
+    - error|e|exception|raise|r|2: for a raised exception
+
+Example:
+    export GIT_PYTHON_REFRESH=quiet
+
+
+The above exception was the direct cause of the following exception:
+
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\integrations\git.py:40 in verify_install                                                       │
+│                                                                                                                                                                                  │
+│   37 │   │                                                                                    ╭─────────────────────────────────── locals ────────────────────────────────────╮  │
+│   38 │   │   # Check whether the git executable could be imported.                            │ kwargs = {'app': None}                                                        │  │
+│   39 │   │   try:                                                                             │  tools = <briefcase.integrations.base.ToolCache object at 0x000002757147CEF0> │  │
+│ ❱ 40 │   │   │   import git                                                                   ╰───────────────────────────────────────────────────────────────────────────────╯  │
+│   41 │   │   except ImportError as e:  # pragma: no cover                                                                                                                        │
+│   42 │   │   │   # macOS provides git as part of the Xcode command line tools,                                                                                                   │
+│   43 │   │   │   # and also hijacks /usr/bin/git with a trigger that prompts the                                                                                                 │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\__init__.py:298 in <module>                                                                          │
+│                                                                                                                                                                                  │
+│   295 try:                                                                                                                                                                       │
+│   296 │   refresh()                                                                                                                                                              │
+│   297 except Exception as _exc:                                                                                                                                                  │
+│ ❱ 298 │   raise ImportError("Failed to initialize: {0}".format(_exc)) from _exc                                                                                                  │
+│   299                                                                                                                                                                            │
+│   300 # } END initialize git executable path                                                                                                                                     │
+│   301                                                                                                                                                                            │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────────────────╮                    │
+│ │           cmd = <module 'git.cmd' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\cmd.py'>                   │                    │
+│ │        compat = <module 'git.compat' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\compat.py'>             │                    │
+│ │        config = <module 'git.config' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\config.py'>             │                    │
+│ │            db = <module 'git.db' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\db.py'>                     │                    │
+│ │          diff = <module 'git.diff' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\diff.py'>                 │                    │
+│ │           exc = <module 'git.exc' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\exc.py'>                   │                    │
+│ │        GIT_OK = False                                                                                                                                     │                    │
+│ │         INDEX = <DiffConstants.INDEX: 2>                                                                                                                  │                    │
+│ │         index = <module 'git.index' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\index\\__init__.py'>     │                    │
+│ │          List = typing.List                                                                                                                               │                    │
+│ │     NULL_TREE = <DiffConstants.NULL_TREE: 1>                                                                                                              │                    │
+│ │       objects = <module 'git.objects' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\objects\\__init__.py'> │                    │
+│ │      Optional = typing.Optional                                                                                                                           │                    │
+│ │      PathLike = typing.Union[str, ForwardRef('os.PathLike[str]')]                                                                                         │                    │
+│ │          refs = <module 'git.refs' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\refs\\__init__.py'>       │                    │
+│ │        remote = <module 'git.remote' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\remote.py'>             │                    │
+│ │          repo = <module 'git.repo' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\repo\\__init__.py'>       │                    │
+│ │      Sequence = typing.Sequence                                                                                                                           │                    │
+│ │         Tuple = typing.Tuple                                                                                                                              │                    │
+│ │ TYPE_CHECKING = False                                                                                                                                     │                    │
+│ │         types = <module 'git.types' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\types.py'>               │                    │
+│ │         Union = typing.Union                                                                                                                              │                    │
+│ │      warnings = <module 'warnings' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\warnings.py'>                                 │                    │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                    │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ImportError: Failed to initialize: Bad git executable.
+The git executable must be specified in one of the following ways:
+    - be included in your $PATH
+    - be set via $GIT_PYTHON_GIT_EXECUTABLE
+    - explicitly set via git.refresh(<full-path-to-git-executable>)
+
+All git commands will error until this is rectified.
+
+This initial message can be silenced or aggravated in the future by setting the
+$GIT_PYTHON_REFRESH environment variable. Use one of the following values:
+    - quiet|q|silence|s|silent|none|n|0: for no message or exception
+    - warn|w|warning|log|l|1: for a warning message (logging level CRITICAL, displayed by default)
+    - error|e|exception|raise|r|2: for a raised exception
+
+Example:
+    export GIT_PYTHON_REFRESH=quiet
+
+
+The above exception was the direct cause of the following exception:
+
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\__main__.py:27 in main                                                                         │
+│                                                                                                                                                                                  │
+│   24 │   │   │   Path.cwd() / "pyproject.toml",                                                                                                                                  │
+│   25 │   │   │   overrides=overrides,                                                                                                                                            │
+│   26 │   │   )                                                                                                                                                                   │
+│ ❱ 27 │   │   command(**options)                                                                                                                                                  │
+│   28 │   except HelpText as e:                                                                                                                                                   │
+│   29 │   │   console.info()                                                                                                                                                      │
+│   30 │   │   console.info(str(e))                                                                                                                                                │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────────────────────────────────────────────── locals ───────────────────────────────────────────────────────────────────────────────────╮ │
+│ │       command = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000027571914350>                                                                        │ │
+│ │       console = <briefcase.console.Console object at 0x00000275712A5FA0>                                                                                                     │ │
+│ │             e = BriefcaseCommandError('Briefcase requires git, but it is not installed (or is not on your PATH). Visit:\n\n    https://git-scm.com/\n\nto download and       │ │
+│ │                 install git manually.\n\nIf you have installed git recently and are still getting this error, you may\nneed to restart your terminal session.\n')            │ │
+│ │ extra_cmdline = []                                                                                                                                                           │ │
+│ │       options = {}                                                                                                                                                           │ │
+│ │     overrides = {}                                                                                                                                                           │ │
+│ │        result = 200                                                                                                                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\create.py:1009 in __call__                                                            │
+│                                                                                                                                                                                  │
+│   1006 │   ) -> dict | None:                                                                                                                                                     │
+│   1007 │   │   # Confirm host compatibility, that all required tools are available,                                                                                              │
+│   1008 │   │   # and that the app configuration is finalized.                                                                                                                    │
+│ ❱ 1009 │   │   self.finalize(app)                                                                                                                                                │
+│   1010 │   │                                                                                                                                                                     │
+│   1011 │   │   if app_name:                                                                                                                                                      │
+│   1012 │   │   │   try:                                                                                                                                                          │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────── locals ─────────────────────────────────────────────╮                                                                             │
+│ │      app = None                                                                                  │                                                                             │
+│ │ app_name = None                                                                                  │                                                                             │
+│ │  options = {}                                                                                    │                                                                             │
+│ │     self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000027571914350> │                                                                             │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                             │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\base.py:699 in finalize                                                               │
+│                                                                                                                                                                                  │
+│    696 │   │   │   to finalize. By default, all apps will be finalized.                                                                                                          │
+│    697 │   │   """                                                                                                                                                               │
+│    698 │   │   self.verify_host()                                                                                                                                                │
+│ ❱  699 │   │   self.verify_tools()                                                                                                                                               │
+│    700 │   │                                                                                                                                                                     │
+│    701 │   │   apps = self.apps.values() if app is None else [app]                                                                                                               │
+│    702 │   │   for app in apps:                                                                                                                                                  │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────── locals ──────────────────────────────────────────────╮                                                                            │
+│ │       app = None                                                                                  │                                                                            │
+│ │      self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000027571914350> │                                                                            │
+│ │ test_mode = False                                                                                 │                                                                            │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                            │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\platforms\android\gradle.py:145 in verify_tools                                                │
+│                                                                                                                                                                                  │
+│   142 │   def verify_tools(self):                                                                                                                                                │
+│   143 │   │   """Verify that the Android APK tools in `briefcase` will operate on this system,                                                                                   │
+│   144 │   │   downloading tools as needed."""                                                                                                                                    │
+│ ❱ 145 │   │   super().verify_tools()                                                                                                                                             │
+│   146 │   │   AndroidSDK.verify(tools=self.tools)                                                                                                                                │
+│   147 │   │   if not self.is_clone:                                                                                                                                              │
+│   148 │   │   │   self.console.add_log_file_extra(self.tools.android_sdk.list_packages)                                                                                          │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────── locals ───────────────────────────────────────────╮                                                                                 │
+│ │ self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000027571914350> │                                                                                 │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────╯                                                                                 │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\create.py:994 in verify_tools                                                         │
+│                                                                                                                                                                                  │
+│    991 │   │   Raises MissingToolException if a required system tool is missing.                                                                                                 │
+│    992 │   │   """                                                                                                                                                               │
+│    993 │   │   super().verify_tools()                                                                                                                                            │
+│ ❱  994 │   │   Git.verify(tools=self.tools)                                                                                                                                      │
+│    995 │                                                                                                                                                                         │
+│    996 │   def verify_app_tools(self, app: AppConfig):                                                                                                                           │
+│    997 │   │   """Verify that tools needed to run the command for this app exist."""                                                                                             │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────── locals ───────────────────────────────────────────╮                                                                                 │
+│ │ self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000027571914350> │                                                                                 │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────╯                                                                                 │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\integrations\base.py:78 in verify                                                              │
+│                                                                                                                                                                                  │
+│    75 │   ) -> ToolT:                                                                          ╭─────────────────────────────────── locals ────────────────────────────────────╮ │
+│    76 │   │   """Confirm the tool is available and usable on the host platform."""             │    app = None                                                                 │ │
+│    77 │   │   cls.verify_host(tools=tools)                                                     │ kwargs = {}                                                                   │ │
+│ ❱  78 │   │   tool = cls.verify_install(tools=tools, app=app, **kwargs)                        │  tools = <briefcase.integrations.base.ToolCache object at 0x000002757147CEF0> │ │
+│    79 │   │   return tool                                                                      ╰───────────────────────────────────────────────────────────────────────────────╯ │
+│    80 │                                                                                                                                                                          │
+│    81 │   @classmethod                                                                                                                                                           │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\integrations\git.py:65 in verify_install                                                       │
+│                                                                                                                                                                                  │
+│   62 │   │   │   │   ) from e                                                                 ╭─────────────────────────────────── locals ────────────────────────────────────╮  │
+│   63 │   │   │                                                                                │ kwargs = {'app': None}                                                        │  │
+│   64 │   │   │   else:                                                                        │  tools = <briefcase.integrations.base.ToolCache object at 0x000002757147CEF0> │  │
+│ ❱ 65 │   │   │   │   raise BriefcaseCommandError(                                             ╰───────────────────────────────────────────────────────────────────────────────╯  │
+│   66 │   │   │   │   │   f"""\                                                                                                                                                   │
+│   67 Briefcase requires git, but it is not installed (or is not on your PATH). Visit:                                                                                            │
+│   68                                                                                                                                                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+BriefcaseCommandError: Briefcase requires git, but it is not installed (or is not on your PATH). Visit:
+
+    https://git-scm.com/
+
+to download and install git manually.
+
+If you have installed git recently and are still getting this error, you may
+need to restart your terminal session.
+

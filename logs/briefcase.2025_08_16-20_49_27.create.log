@@ -1,0 +1,517 @@
+Date/Time:       2025-08-16 20:49:28 
+Command line:    C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\briefcase create android
+
+OS Release:      Windows 11
+OS Version:      10.0.22631
+Architecture:    AMD64
+Platform:        Windows-11-10.0.22631-SP0
+
+Python exe:      C:\Users\user\AppData\Local\Programs\Python\Python312\python.exe
+Python version:  3.12.8 (tags/v3.12.8:2dc476b, Dec  3 2024, 19:30:04) [MSC v.1942 64 bit (AMD64)]
+Virtual env:     False
+Conda env:       False
+
+Briefcase:       0.3.24
+Target platform: android
+Target format:   gradle
+
+Environment Variables:
+	ACSETUPSVCPORT=23210
+	ACSVCPORT=17532
+	AHA_CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_14744_QRDONCMWPJPTDVZJ
+	ALLUSERSPROFILE=C:\ProgramData
+	APPDATA=C:\Users\user\AppData\Roaming
+	BUNDLED_DEBUGPY_PATH=c:\Users\user\.trae\extensions\ms-python.debugpy-2025.6.0-win32-x64\bundled\libs\debugpy
+	COLORTERM=truecolor
+	COMMONPROGRAMFILES=C:\Program Files\Common Files
+	COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files
+	COMMONPROGRAMW6432=C:\Program Files\Common Files
+	COMPUTERNAME=DELLG15
+	COMSPEC=C:\WINDOWS\system32\cmd.exe
+	CUDA_PATH=V:\
+	CUDA_PATH_V10_1=V:\
+	DRIVERDATA=C:\Windows\System32\Drivers\DriverData
+	EFC_18224=1
+	ENABLELOG=INFO
+	GIT_PYTHON_REFRESH=quiet
+	HOMEDRIVE=C:
+	HOMEPATH=\Users\user
+	INTEL_DEV_REDIST=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
+	LANG=zh_CN.UTF-8
+	LOCALAPPDATA=C:\Users\user\AppData\Local
+	LOGONSERVER=\\DELLG15
+	NUMBER_OF_PROCESSORS=16
+	NVCUDASAMPLES10_1_ROOT=V:\
+	NVCUDASAMPLES_ROOT=V:\
+	NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt\
+	OLLAMA_MODELS=E:\ollama\ollamaimagers
+	ONEDRIVE=C:\Users\user\OneDrive
+	ONEDRIVECONSUMER=C:\Users\user\OneDrive
+	ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+	OS=Windows_NT
+	PATH=;;;;c:\Users\user\.trae\sdks\workspaces\59b3c760\versions\node\current;c:\Users\user\.trae\sdks\versions\node\current;C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;V:\\bin;V:\\libnvvp;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Bandizip\;C:\Program Files (x86)\dotnet\;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.1\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Apps\;C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python312\;C:\Users\user\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python311\;C:\Users\user\AppData\Local\Microsoft\WindowsApps;V:\PyCharm Community Edition 2023.1.3\bin;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Users\user\.lmstudio\bin;D:\ffmpeg-master-latest-win64-gpl\bin;C:\Users\user\AppData\Roaming\npm;E:\ollama;c:\Users\user\.trae\extensions\ms-python.debugpy-2025.6.0-win32-x64\bundled\scripts\noConfigScripts
+	PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL
+	PROCESSOR_ARCHITECTURE=AMD64
+	PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 165 Stepping 2, GenuineIntel
+	PROCESSOR_LEVEL=6
+	PROCESSOR_REVISION=a502
+	PROGRAMDATA=C:\ProgramData
+	PROGRAMFILES=C:\Program Files
+	PROGRAMFILES(X86)=C:\Program Files (x86)
+	PROGRAMW6432=C:\Program Files
+	PSMODULEPATH=C:\Users\user\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+	PUBLIC=C:\Users\Public
+	PYCHARM COMMUNITY EDITION=V:\PyCharm Community Edition 2023.1.3\bin;
+	PYDEVD_DISABLE_FILE_VALIDATION=1
+	RLSSVCPORT=22112
+	SESSIONNAME=Console
+	SYSTEMDRIVE=C:
+	SYSTEMROOT=C:\WINDOWS
+	TEMP=C:\Users\user\AppData\Local\Temp
+	TERM_PRODUCT=Trae
+	TERM_PROGRAM=vscode
+	TERM_PROGRAM_VERSION=1.100.3
+	TMP=C:\Users\user\AppData\Local\Temp
+	TRAE_AI_SHELL_ID=29
+	USERDOMAIN=DELLG15
+	USERDOMAIN_ROAMINGPROFILE=DELLG15
+	USERNAME=user
+	USERPROFILE=C:\Users\user
+	VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=c:\Users\user\.trae\extensions\ms-python.debugpy-2025.6.0-win32-x64\.noConfigDebugAdapterEndpoints\endpoint-8809539ed22a285f.txt
+	VSCODE_ENV_PREPEND=PATH=c\x3a\\Users\\user\\.trae\\sdks\\workspaces\\59b3c760\\versions\\node\\current;c\x3a\\Users\\user\\.trae\\sdks\\versions\\node\\current;
+	VSCODE_INJECTION=1
+	VSCODE_NONCE=3a7e087b-0556-4cef-bfe5-8f5e028acb73
+	VSCODE_STABLE=1
+	WINDIR=C:\WINDOWS
+	ZES_ENABLE_SYSMAN=1
+
+pyproject.toml:
+[build-system]
+requires = ["briefcase"]
+
+[project]
+name = "xchat"
+version = "1.0.0"
+description = "X-chat Android App"
+authors = [{name = "User", email = "user@example.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+
+[tool.briefcase]
+bundle = "com.example"
+project_name = "xchat"
+
+[tool.briefcase.app.xchat]
+formal_name = "X-chat"
+sources = ["xchat"]
+test_sources = ["tests"]
+
+requires = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+test_requires = []
+
+[tool.briefcase.app.xchat.android]
+base_theme = "Theme.MaterialComponents.Light.DarkActionBar"
+build_gradle_dependencies = []
+build_gradle_extra_content = ""
+system_requires = []
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+]
+
+Briefcase Log:
+[20:49:27] Saving log... started                                                                                                                                      console.py:433
+
+Main thread traceback:
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:1279 in execute                                                                               │
+│                                                                                                                                                                                  │
+│   1276 │   │   │   universal_newlines,                                                                                                                                           │
+│   1277 │   │   )                                                                                                                                                                 │
+│   1278 │   │   try:                                                                                                                                                              │
+│ ❱ 1279 │   │   │   proc = safer_popen(                                                                                                                                           │
+│   1280 │   │   │   │   command,                                                                                                                                                  │
+│   1281 │   │   │   │   env=env,                                                                                                                                                  │
+│   1282 │   │   │   │   cwd=cwd,                                                                                                                                                  │
+│                                                                                                                                                                                  │
+│ ╭──────────────────────────────────────────────────── locals ────────────────────────────────────────────────────╮                                                               │
+│ │              as_process = False                                                                                │                                                               │
+│ │                 command = ['git', 'version']                                                                   │                                                               │
+│ │                     cwd = 'V:\\代码\\X-chat-Android'                                                           │                                                               │
+│ │                     env = {                                                                                    │                                                               │
+│ │                           │   'ACSETUPSVCPORT': '23210',                                                       │                                                               │
+│ │                           │   'ACSVCPORT': '17532',                                                            │                                                               │
+│ │                           │   'AHA_CHROME_CRASHPAD_PIPE_NAME': '\\\\.\\pipe\\crashpad_14744_QRDONCMWPJPTDVZJ', │                                                               │
+│ │                           │   'ALLUSERSPROFILE': 'C:\\ProgramData',                                            │                                                               │
+│ │                           │   'APPDATA': 'C:\\Users\\user\\AppData\\Roaming',                                  │                                                               │
+│ │                           │   'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',                         │                                                               │
+│ │                           │   'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',              │                                                               │
+│ │                           │   'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',                         │                                                               │
+│ │                           │   'COMPUTERNAME': 'DELLG15',                                                       │                                                               │
+│ │                           │   'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe',                                     │                                                               │
+│ │                           │   ... +60                                                                          │                                                               │
+│ │                           }                                                                                    │                                                               │
+│ │              inline_env = None                                                                                 │                                                               │
+│ │                 istream = None                                                                                 │                                                               │
+│ │      kill_after_timeout = None                                                                                 │                                                               │
+│ │          max_chunk_size = 8192                                                                                 │                                                               │
+│ │           output_stream = None                                                                                 │                                                               │
+│ │        redacted_command = ['git', 'version']                                                                   │                                                               │
+│ │                    self = <git.cmd.Git object at 0x000001AC79247160>                                           │                                                               │
+│ │                   shell = False                                                                                │                                                               │
+│ │        stdout_as_string = True                                                                                 │                                                               │
+│ │             stdout_sink = -1                                                                                   │                                                               │
+│ │ strip_newline_in_stdout = True                                                                                 │                                                               │
+│ │       subprocess_kwargs = {}                                                                                   │                                                               │
+│ │      universal_newlines = False                                                                                │                                                               │
+│ │         with_exceptions = True                                                                                 │                                                               │
+│ │    with_extended_output = False                                                                                │                                                               │
+│ │             with_stdout = True                                                                                 │                                                               │
+│ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                               │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:286 in _safer_popen_windows                                                                   │
+│                                                                                                                                                                                  │
+│    283 │   │   # unsafe. Setting NoDefaultCurrentDirectoryInExePath in all cases, as done here,                                                                                  │
+│    284 │   │   # is simpler and protects against that. (As above, the "1" can be any value.)                                                                                     │
+│    285 │   │   with patch_env("NoDefaultCurrentDirectoryInExePath", "1"):                                                                                                        │
+│ ❱  286 │   │   │   return Popen(                                                                                                                                                 │
+│    287 │   │   │   │   command,                                                                                                                                                  │
+│    288 │   │   │   │   shell=shell,                                                                                                                                              │
+│    289 │   │   │   │   env=env,                                                                                                                                                  │
+│                                                                                                                                                                                  │
+│ ╭────────────────────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────────────────╮                   │
+│ │       command = ['git', 'version']                                                                                                                         │                   │
+│ │ creationflags = 134218240                                                                                                                                  │                   │
+│ │           env = {                                                                                                                                          │                   │
+│ │                 │   'ACSETUPSVCPORT': '23210',                                                                                                             │                   │
+│ │                 │   'ACSVCPORT': '17532',                                                                                                                  │                   │
+│ │                 │   'AHA_CHROME_CRASHPAD_PIPE_NAME': '\\\\.\\pipe\\crashpad_14744_QRDONCMWPJPTDVZJ',                                                       │                   │
+│ │                 │   'ALLUSERSPROFILE': 'C:\\ProgramData',                                                                                                  │                   │
+│ │                 │   'APPDATA': 'C:\\Users\\user\\AppData\\Roaming',                                                                                        │                   │
+│ │                 │   'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',                                                                               │                   │
+│ │                 │   'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',                                                                    │                   │
+│ │                 │   'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',                                                                               │                   │
+│ │                 │   'COMPUTERNAME': 'DELLG15',                                                                                                             │                   │
+│ │                 │   'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe',                                                                                           │                   │
+│ │                 │   ... +60                                                                                                                                │                   │
+│ │                 }                                                                                                                                          │                   │
+│ │        kwargs = {'cwd': 'V:\\代码\\X-chat-Android', 'bufsize': -1, 'stdin': -3, 'stderr': -1, 'stdout': -1, 'universal_newlines': False, 'encoding': None} │                   │
+│ │         shell = False                                                                                                                                      │                   │
+│ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                   │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:1026 in __init__                                                                                         │
+│                                                                                                                                                                                  │
+│   1023 │   │   │   │   │   self.stderr = io.TextIOWrapper(self.stderr,                                                                                                           │
+│   1024 │   │   │   │   │   │   │   encoding=encoding, errors=errors)                                                                                                             │
+│   1025 │   │   │                                                                                                                                                                 │
+│ ❱ 1026 │   │   │   self._execute_child(args, executable, preexec_fn, close_fds,                                                                                                  │
+│   1027 │   │   │   │   │   │   │   │   pass_fds, cwd, env,                                                                                                                       │
+│   1028 │   │   │   │   │   │   │   │   startupinfo, creationflags, shell,                                                                                                        │
+│   1029 │   │   │   │   │   │   │   │   p2cread, p2cwrite,                                                                                                                        │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────────── locals ──────────────────────────────────────────────────╮                                                                    │
+│ │               args = ['git', 'version']                                                                   │                                                                    │
+│ │            bufsize = -1                                                                                   │                                                                    │
+│ │            c2pread = 6                                                                                    │                                                                    │
+│ │           c2pwrite = Handle(620)                                                                          │                                                                    │
+│ │          close_fds = True                                                                                 │                                                                    │
+│ │      creationflags = 134218240                                                                            │                                                                    │
+│ │                cwd = 'V:\\代码\\X-chat-Android'                                                           │                                                                    │
+│ │           encoding = None                                                                                 │                                                                    │
+│ │                env = {                                                                                    │                                                                    │
+│ │                      │   'ACSETUPSVCPORT': '23210',                                                       │                                                                    │
+│ │                      │   'ACSVCPORT': '17532',                                                            │                                                                    │
+│ │                      │   'AHA_CHROME_CRASHPAD_PIPE_NAME': '\\\\.\\pipe\\crashpad_14744_QRDONCMWPJPTDVZJ', │                                                                    │
+│ │                      │   'ALLUSERSPROFILE': 'C:\\ProgramData',                                            │                                                                    │
+│ │                      │   'APPDATA': 'C:\\Users\\user\\AppData\\Roaming',                                  │                                                                    │
+│ │                      │   'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',                         │                                                                    │
+│ │                      │   'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',              │                                                                    │
+│ │                      │   'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',                         │                                                                    │
+│ │                      │   'COMPUTERNAME': 'DELLG15',                                                       │                                                                    │
+│ │                      │   'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe',                                     │                                                                    │
+│ │                      │   ... +60                                                                          │                                                                    │
+│ │                      }                                                                                    │                                                                    │
+│ │             errors = None                                                                                 │                                                                    │
+│ │            errread = 7                                                                                    │                                                                    │
+│ │           errwrite = Handle(1180)                                                                         │                                                                    │
+│ │         executable = None                                                                                 │                                                                    │
+│ │       extra_groups = None                                                                                 │                                                                    │
+│ │                  f = <_io.BufferedReader name=7>                                                          │                                                                    │
+│ │                gid = None                                                                                 │                                                                    │
+│ │               gids = None                                                                                 │                                                                    │
+│ │              group = None                                                                                 │                                                                    │
+│ │            p2cread = Handle(872)                                                                          │                                                                    │
+│ │           p2cwrite = -1                                                                                   │                                                                    │
+│ │           pass_fds = ()                                                                                   │                                                                    │
+│ │           pipesize = -1                                                                                   │                                                                    │
+│ │         preexec_fn = None                                                                                 │                                                                    │
+│ │      process_group = -1                                                                                   │                                                                    │
+│ │    restore_signals = True                                                                                 │                                                                    │
+│ │               self = <Popen: returncode: None args: ['git', 'version']>                                   │                                                                    │
+│ │              shell = False                                                                                │                                                                    │
+│ │  start_new_session = False                                                                                │                                                                    │
+│ │        startupinfo = None                                                                                 │                                                                    │
+│ │             stderr = -1                                                                                   │                                                                    │
+│ │              stdin = -3                                                                                   │                                                                    │
+│ │             stdout = -1                                                                                   │                                                                    │
+│ │               text = None                                                                                 │                                                                    │
+│ │                uid = None                                                                                 │                                                                    │
+│ │              umask = -1                                                                                   │                                                                    │
+│ │ universal_newlines = False                                                                                │                                                                    │
+│ │               user = None                                                                                 │                                                                    │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                    │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:1538 in _execute_child                                                                                   │
+│                                                                                                                                                                                  │
+│   1535 │   │   │                                                                                                                                                                 │
+│   1536 │   │   │   # Start the process                                                                                                                                           │
+│   1537 │   │   │   try:                                                                                                                                                          │
+│ ❱ 1538 │   │   │   │   hp, ht, pid, tid = _winapi.CreateProcess(executable, args,                                                                                                │
+│   1539 │   │   │   │   │   │   │   │   │   │    # no special security                                                                                                            │
+│   1540 │   │   │   │   │   │   │   │   │   │    None, None,                                                                                                                      │
+│   1541 │   │   │   │   │   │   │   │   │   │    int(not close_fds),                                                                                                              │
+│                                                                                                                                                                                  │
+│ ╭──────────────────────────────────────────────────── locals ─────────────────────────────────────────────────────╮                                                              │
+│ │                     args = 'git version'                                                                        │                                                              │
+│ │           attribute_list = {'handle_list': [872, 1180, 620]}                                                    │                                                              │
+│ │                  c2pread = 6                                                                                    │                                                              │
+│ │                 c2pwrite = Handle(620)                                                                          │                                                              │
+│ │                close_fds = False                                                                                │                                                              │
+│ │            creationflags = 134218240                                                                            │                                                              │
+│ │                      cwd = 'V:\\代码\\X-chat-Android'                                                           │                                                              │
+│ │                      env = {                                                                                    │                                                              │
+│ │                            │   'ACSETUPSVCPORT': '23210',                                                       │                                                              │
+│ │                            │   'ACSVCPORT': '17532',                                                            │                                                              │
+│ │                            │   'AHA_CHROME_CRASHPAD_PIPE_NAME': '\\\\.\\pipe\\crashpad_14744_QRDONCMWPJPTDVZJ', │                                                              │
+│ │                            │   'ALLUSERSPROFILE': 'C:\\ProgramData',                                            │                                                              │
+│ │                            │   'APPDATA': 'C:\\Users\\user\\AppData\\Roaming',                                  │                                                              │
+│ │                            │   'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',                         │                                                              │
+│ │                            │   'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',              │                                                              │
+│ │                            │   'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',                         │                                                              │
+│ │                            │   'COMPUTERNAME': 'DELLG15',                                                       │                                                              │
+│ │                            │   'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe',                                     │                                                              │
+│ │                            │   ... +60                                                                          │                                                              │
+│ │                            }                                                                                    │                                                              │
+│ │                  errread = 7                                                                                    │                                                              │
+│ │                 errwrite = Handle(1180)                                                                         │                                                              │
+│ │               executable = None                                                                                 │                                                              │
+│ │              handle_list = [872, 1180, 620]                                                                     │                                                              │
+│ │         have_handle_list = False                                                                                │                                                              │
+│ │                  p2cread = Handle(872)                                                                          │                                                              │
+│ │                 p2cwrite = -1                                                                                   │                                                              │
+│ │                 pass_fds = ()                                                                                   │                                                              │
+│ │               preexec_fn = None                                                                                 │                                                              │
+│ │                     self = <Popen: returncode: None args: ['git', 'version']>                                   │                                                              │
+│ │                    shell = False                                                                                │                                                              │
+│ │              startupinfo = <subprocess.STARTUPINFO object at 0x000001AC796EF740>                                │                                                              │
+│ │               unused_gid = None                                                                                 │                                                              │
+│ │              unused_gids = None                                                                                 │                                                              │
+│ │     unused_process_group = -1                                                                                   │                                                              │
+│ │   unused_restore_signals = True                                                                                 │                                                              │
+│ │ unused_start_new_session = False                                                                                │                                                              │
+│ │               unused_uid = None                                                                                 │                                                              │
+│ │             unused_umask = -1                                                                                   │                                                              │
+│ │          use_std_handles = True                                                                                 │                                                              │
+│ ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+FileNotFoundError: [WinError 2] 系统找不到指定的文件。
+
+The above exception was the direct cause of the following exception:
+
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\__main__.py:27 in main                                                                         │
+│                                                                                                                                                                                  │
+│   24 │   │   │   Path.cwd() / "pyproject.toml",                                                                                                                                  │
+│   25 │   │   │   overrides=overrides,                                                                                                                                            │
+│   26 │   │   )                                                                                                                                                                   │
+│ ❱ 27 │   │   command(**options)                                                                                                                                                  │
+│   28 │   except HelpText as e:                                                                                                                                                   │
+│   29 │   │   console.info()                                                                                                                                                      │
+│   30 │   │   console.info(str(e))                                                                                                                                                │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────────── locals ────────────────────────────────────────────────╮                                                                        │
+│ │       command = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x000001AC7902EAB0> │                                                                        │
+│ │       console = <briefcase.console.Console object at 0x000001AC75706180>                              │                                                                        │
+│ │ extra_cmdline = []                                                                                    │                                                                        │
+│ │       options = {}                                                                                    │                                                                        │
+│ │     overrides = {}                                                                                    │                                                                        │
+│ │        result = 0                                                                                     │                                                                        │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                        │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\create.py:1009 in __call__                                                            │
+│                                                                                                                                                                                  │
+│   1006 │   ) -> dict | None:                                                                                                                                                     │
+│   1007 │   │   # Confirm host compatibility, that all required tools are available,                                                                                              │
+│   1008 │   │   # and that the app configuration is finalized.                                                                                                                    │
+│ ❱ 1009 │   │   self.finalize(app)                                                                                                                                                │
+│   1010 │   │                                                                                                                                                                     │
+│   1011 │   │   if app_name:                                                                                                                                                      │
+│   1012 │   │   │   try:                                                                                                                                                          │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────── locals ─────────────────────────────────────────────╮                                                                             │
+│ │      app = None                                                                                  │                                                                             │
+│ │ app_name = None                                                                                  │                                                                             │
+│ │  options = {}                                                                                    │                                                                             │
+│ │     self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x000001AC7902EAB0> │                                                                             │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                             │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\base.py:699 in finalize                                                               │
+│                                                                                                                                                                                  │
+│    696 │   │   │   to finalize. By default, all apps will be finalized.                                                                                                          │
+│    697 │   │   """                                                                                                                                                               │
+│    698 │   │   self.verify_host()                                                                                                                                                │
+│ ❱  699 │   │   self.verify_tools()                                                                                                                                               │
+│    700 │   │                                                                                                                                                                     │
+│    701 │   │   apps = self.apps.values() if app is None else [app]                                                                                                               │
+│    702 │   │   for app in apps:                                                                                                                                                  │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────── locals ──────────────────────────────────────────────╮                                                                            │
+│ │       app = None                                                                                  │                                                                            │
+│ │      self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x000001AC7902EAB0> │                                                                            │
+│ │ test_mode = False                                                                                 │                                                                            │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                            │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\platforms\android\gradle.py:145 in verify_tools                                                │
+│                                                                                                                                                                                  │
+│   142 │   def verify_tools(self):                                                                                                                                                │
+│   143 │   │   """Verify that the Android APK tools in `briefcase` will operate on this system,                                                                                   │
+│   144 │   │   downloading tools as needed."""                                                                                                                                    │
+│ ❱ 145 │   │   super().verify_tools()                                                                                                                                             │
+│   146 │   │   AndroidSDK.verify(tools=self.tools)                                                                                                                                │
+│   147 │   │   if not self.is_clone:                                                                                                                                              │
+│   148 │   │   │   self.console.add_log_file_extra(self.tools.android_sdk.list_packages)                                                                                          │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────── locals ───────────────────────────────────────────╮                                                                                 │
+│ │ self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x000001AC7902EAB0> │                                                                                 │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────╯                                                                                 │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\create.py:994 in verify_tools                                                         │
+│                                                                                                                                                                                  │
+│    991 │   │   Raises MissingToolException if a required system tool is missing.                                                                                                 │
+│    992 │   │   """                                                                                                                                                               │
+│    993 │   │   super().verify_tools()                                                                                                                                            │
+│ ❱  994 │   │   Git.verify(tools=self.tools)                                                                                                                                      │
+│    995 │                                                                                                                                                                         │
+│    996 │   def verify_app_tools(self, app: AppConfig):                                                                                                                           │
+│    997 │   │   """Verify that tools needed to run the command for this app exist."""                                                                                             │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────── locals ───────────────────────────────────────────╮                                                                                 │
+│ │ self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x000001AC7902EAB0> │                                                                                 │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────╯                                                                                 │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\integrations\base.py:78 in verify                                                              │
+│                                                                                                                                                                                  │
+│    75 │   ) -> ToolT:                                                                          ╭─────────────────────────────────── locals ────────────────────────────────────╮ │
+│    76 │   │   """Confirm the tool is available and usable on the host platform."""             │    app = None                                                                 │ │
+│    77 │   │   cls.verify_host(tools=tools)                                                     │ kwargs = {}                                                                   │ │
+│ ❱  78 │   │   tool = cls.verify_install(tools=tools, app=app, **kwargs)                        │  tools = <briefcase.integrations.base.ToolCache object at 0x000001AC78F23110> │ │
+│    79 │   │   return tool                                                                      ╰───────────────────────────────────────────────────────────────────────────────╯ │
+│    80 │                                                                                                                                                                          │
+│    81 │   @classmethod                                                                                                                                                           │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\integrations\git.py:78 in verify_install                                                       │
+│                                                                                                                                                                                  │
+│   75 """                                                                                                                                                                         │
+│   76 │   │   │   │   ) from e                                                                                                                                                    │
+│   77 │   │                                                                                                                                                                       │
+│ ❱ 78 │   │   installed_version = git.cmd.Git().version_info                                                                                                                      │
+│   79 │   │   if installed_version < cls.MIN_VERSION:                                                                                                                             │
+│   80 │   │   │   raise BriefcaseCommandError(                                                                                                                                    │
+│   81 │   │   │   │   f"At least Git v{'.'.join(map(str, cls.MIN_VERSION))} is required; "                                                                                        │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────╮                                            │
+│ │    git = <module 'git' from 'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\git\\__init__.py'> │                                            │
+│ │ kwargs = {'app': None}                                                                                                            │                                            │
+│ │  tools = <briefcase.integrations.base.ToolCache object at 0x000001AC78F23110>                                                     │                                            │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                            │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:992 in __getattribute__                                                                       │
+│                                                                                                                                                                                  │
+│    989 │   def __getattribute__(self, name: str) -> Any:                                        ╭───────────────────── locals ──────────────────────╮                            │
+│    990 │   │   if name == "USE_SHELL":                                                          │ name = 'version_info'                             │                            │
+│    991 │   │   │   _warn_use_shell(extra_danger=False)                                          │ self = <git.cmd.Git object at 0x000001AC79247160> │                            │
+│ ❱  992 │   │   return super().__getattribute__(name)                                            ╰───────────────────────────────────────────────────╯                            │
+│    993 │                                                                                                                                                                         │
+│    994 │   def __getattr__(self, name: str) -> Any:                                                                                                                              │
+│    995 │   │   """A convenience method as it allows to call the command as if it was an object.                                                                                  │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:1040 in version_info                                                                          │
+│                                                                                                                                                                                  │
+│   1037 │   │   │   return self._version_info                                                    ╭────────────────────────── locals ──────────────────────────╮                   │
+│   1038 │   │                                                                                    │ refresh_token = <object object at 0x000001AC754B9D60>      │                   │
+│   1039 │   │   # Run "git version" and parse it.                                                │          self = <git.cmd.Git object at 0x000001AC79247160> │                   │
+│ ❱ 1040 │   │   process_version = self._call_process("version")                                  ╰────────────────────────────────────────────────────────────╯                   │
+│   1041 │   │   version_string = process_version.split(" ")[2]                                                                                                                    │
+│   1042 │   │   version_fields = version_string.split(".")[:4]                                                                                                                    │
+│   1043 │   │   leading_numeric_fields = itertools.takewhile(str.isdigit, version_fields)                                                                                         │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:1616 in _call_process                                                                         │
+│                                                                                                                                                                                  │
+│   1613 │   │   call.append(dashify(method))                                                     ╭────────────────────────────── locals ──────────────────────────────╮           │
+│   1614 │   │   call.extend(args_list)                                                           │                  args = ()                                         │           │
+│   1615 │   │                                                                                    │             args_list = []                                         │           │
+│ ❱ 1616 │   │   return self.execute(call, **exec_kwargs)                                         │                  call = ['git', 'version']                         │           │
+│   1617 │                                                                                        │           exec_kwargs = {}                                         │           │
+│   1618 │   def _parse_object_header(self, header_line: str) -> Tuple[str, str, int]:            │              ext_args = []                                         │           │
+│   1619 │   │   """                                                                              │ insert_after_this_arg = None                                       │           │
+│                                                                                                 │                kwargs = {}                                         │           │
+│                                                                                                 │                method = 'version'                                  │           │
+│                                                                                                 │              opt_args = []                                         │           │
+│                                                                                                 │           opts_kwargs = {}                                         │           │
+│                                                                                                 │                  self = <git.cmd.Git object at 0x000001AC79247160> │           │
+│                                                                                                 ╰────────────────────────────────────────────────────────────────────╯           │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\git\cmd.py:1293 in execute                                                                               │
+│                                                                                                                                                                                  │
+│   1290 │   │   │   │   **subprocess_kwargs,                                                                                                                                      │
+│   1291 │   │   │   )                                                                                                                                                             │
+│   1292 │   │   except cmd_not_found_exception as err:                                                                                                                            │
+│ ❱ 1293 │   │   │   raise GitCommandNotFound(redacted_command, err) from err                                                                                                      │
+│   1294 │   │   else:                                                                                                                                                             │
+│   1295 │   │   │   # Replace with a typeguard for Popen[bytes]?                                                                                                                  │
+│   1296 │   │   │   proc.stdout = cast(BinaryIO, proc.stdout)                                                                                                                     │
+│                                                                                                                                                                                  │
+│ ╭──────────────────────────────────────────────────── locals ────────────────────────────────────────────────────╮                                                               │
+│ │              as_process = False                                                                                │                                                               │
+│ │                 command = ['git', 'version']                                                                   │                                                               │
+│ │                     cwd = 'V:\\代码\\X-chat-Android'                                                           │                                                               │
+│ │                     env = {                                                                                    │                                                               │
+│ │                           │   'ACSETUPSVCPORT': '23210',                                                       │                                                               │
+│ │                           │   'ACSVCPORT': '17532',                                                            │                                                               │
+│ │                           │   'AHA_CHROME_CRASHPAD_PIPE_NAME': '\\\\.\\pipe\\crashpad_14744_QRDONCMWPJPTDVZJ', │                                                               │
+│ │                           │   'ALLUSERSPROFILE': 'C:\\ProgramData',                                            │                                                               │
+│ │                           │   'APPDATA': 'C:\\Users\\user\\AppData\\Roaming',                                  │                                                               │
+│ │                           │   'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',                         │                                                               │
+│ │                           │   'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',              │                                                               │
+│ │                           │   'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',                         │                                                               │
+│ │                           │   'COMPUTERNAME': 'DELLG15',                                                       │                                                               │
+│ │                           │   'COMSPEC': 'C:\\WINDOWS\\system32\\cmd.exe',                                     │                                                               │
+│ │                           │   ... +60                                                                          │                                                               │
+│ │                           }                                                                                    │                                                               │
+│ │              inline_env = None                                                                                 │                                                               │
+│ │                 istream = None                                                                                 │                                                               │
+│ │      kill_after_timeout = None                                                                                 │                                                               │
+│ │          max_chunk_size = 8192                                                                                 │                                                               │
+│ │           output_stream = None                                                                                 │                                                               │
+│ │        redacted_command = ['git', 'version']                                                                   │                                                               │
+│ │                    self = <git.cmd.Git object at 0x000001AC79247160>                                           │                                                               │
+│ │                   shell = False                                                                                │                                                               │
+│ │        stdout_as_string = True                                                                                 │                                                               │
+│ │             stdout_sink = -1                                                                                   │                                                               │
+│ │ strip_newline_in_stdout = True                                                                                 │                                                               │
+│ │       subprocess_kwargs = {}                                                                                   │                                                               │
+│ │      universal_newlines = False                                                                                │                                                               │
+│ │         with_exceptions = True                                                                                 │                                                               │
+│ │    with_extended_output = False                                                                                │                                                               │
+│ │             with_stdout = True                                                                                 │                                                               │
+│ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                               │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+GitCommandNotFound: Cmd('git') not found due to: FileNotFoundError('[WinError 2] 系统找不到指定的文件。')
+  cmdline: git version

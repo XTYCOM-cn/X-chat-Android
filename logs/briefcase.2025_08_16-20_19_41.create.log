@@ -1,0 +1,319 @@
+Date/Time:       2025-08-16 20:19:41 
+Command line:    C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\briefcase create android
+
+OS Release:      Windows 11
+OS Version:      10.0.22631
+Architecture:    AMD64
+Platform:        Windows-11-10.0.22631-SP0
+
+Python exe:      C:\Users\user\AppData\Local\Programs\Python\Python312\python.exe
+Python version:  3.12.8 (tags/v3.12.8:2dc476b, Dec  3 2024, 19:30:04) [MSC v.1942 64 bit (AMD64)]
+Virtual env:     False
+Conda env:       False
+
+Briefcase:       0.3.24
+Target platform: android
+Target format:   gradle
+
+Environment Variables:
+	ACSETUPSVCPORT=23210
+	ACSVCPORT=17532
+	AHA_CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_14744_QRDONCMWPJPTDVZJ
+	ALLUSERSPROFILE=C:\ProgramData
+	APPDATA=C:\Users\user\AppData\Roaming
+	COLORTERM=truecolor
+	COMMONPROGRAMFILES=C:\Program Files\Common Files
+	COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files
+	COMMONPROGRAMW6432=C:\Program Files\Common Files
+	COMPUTERNAME=DELLG15
+	COMSPEC=C:\WINDOWS\system32\cmd.exe
+	CUDA_PATH=V:\
+	CUDA_PATH_V10_1=V:\
+	DRIVERDATA=C:\Windows\System32\Drivers\DriverData
+	EFC_18224=1
+	ENABLELOG=INFO
+	HOMEDRIVE=C:
+	HOMEPATH=\Users\user
+	INTEL_DEV_REDIST=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
+	LANG=zh_CN.UTF-8
+	LOCALAPPDATA=C:\Users\user\AppData\Local
+	LOGONSERVER=\\DELLG15
+	NUMBER_OF_PROCESSORS=16
+	NVCUDASAMPLES10_1_ROOT=V:\
+	NVCUDASAMPLES_ROOT=V:\
+	NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt\
+	OLLAMA_MODELS=E:\ollama\ollamaimagers
+	ONEDRIVE=C:\Users\user\OneDrive
+	ONEDRIVECONSUMER=C:\Users\user\OneDrive
+	ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+	OS=Windows_NT
+	PATH=C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;V:\\bin;V:\\libnvvp;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Bandizip\;C:\Program Files (x86)\dotnet\;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.1\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Apps\;C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python312\;C:\Users\user\AppData\Local\Programs\Python\Python311\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python311\;C:\Users\user\AppData\Local\Microsoft\WindowsApps;V:\PyCharm Community Edition 2023.1.3\bin;C:\Users\user\AppData\Local\Programs\Python\Python311;C:\Users\user\.lmstudio\bin;D:\ffmpeg-master-latest-win64-gpl\bin;C:\Users\user\AppData\Roaming\npm;E:\ollama
+	PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL
+	PROCESSOR_ARCHITECTURE=AMD64
+	PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 165 Stepping 2, GenuineIntel
+	PROCESSOR_LEVEL=6
+	PROCESSOR_REVISION=a502
+	PROGRAMDATA=C:\ProgramData
+	PROGRAMFILES=C:\Program Files
+	PROGRAMFILES(X86)=C:\Program Files (x86)
+	PROGRAMW6432=C:\Program Files
+	PSMODULEPATH=C:\Users\user\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+	PUBLIC=C:\Users\Public
+	PYCHARM COMMUNITY EDITION=V:\PyCharm Community Edition 2023.1.3\bin;
+	RLSSVCPORT=22112
+	SESSIONNAME=Console
+	SYSTEMDRIVE=C:
+	SYSTEMROOT=C:\WINDOWS
+	TEMP=C:\Users\user\AppData\Local\Temp
+	TERM_PRODUCT=Trae
+	TERM_PROGRAM=vscode
+	TERM_PROGRAM_VERSION=1.100.3
+	TMP=C:\Users\user\AppData\Local\Temp
+	USERDOMAIN=DELLG15
+	USERDOMAIN_ROAMINGPROFILE=DELLG15
+	USERNAME=user
+	USERPROFILE=C:\Users\user
+	VSCODE_INJECTION=1
+	VSCODE_NONCE=b8270f13-efdc-4a93-a9e4-62c18375cab8
+	VSCODE_STABLE=1
+	WINDIR=C:\WINDOWS
+	ZES_ENABLE_SYSMAN=1
+
+pyproject.toml:
+[build-system]
+requires = ["briefcase>=0.3.0"]
+
+[project]
+name = "xchat-android"
+formal_name = "X-chat Android"
+version = "1.0.0"
+description = "X-chat Android Application"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+
+[tool.briefcase]
+project_name = "X-chat Android"
+bundle = "com.example"
+version = "1.0.0"
+description = "X-chat Android Application"
+
+[tool.briefcase.app.xchat]
+formal_name = "X-chat"
+description = "X-chat Android Application"
+sources = ["."]
+test_sources = ["tests"]
+
+requires = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+test_requires = []
+
+[tool.briefcase.app.xchat.android]
+package_name = "com.example.xchat"
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+]
+bootstrap = "Toga"
+
+Briefcase Log:
+[20:19:41] Saving log... started                                                                                                                                      console.py:433
+
+Main thread traceback:
+╭─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────╮
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\__main__.py:23 in main                                                                         │
+│                                                                                                                                                                                  │
+│   20 │   │   Command, extra_cmdline = parse_cmdline(sys.argv[1:], console=console)                                                                                               │
+│   21 │   │   command = Command(console=console)                                                                                                                                  │
+│   22 │   │   options, overrides = command.parse_options(extra=extra_cmdline)                                                                                                     │
+│ ❱ 23 │   │   command.parse_config(                                                                                                                                               │
+│   24 │   │   │   Path.cwd() / "pyproject.toml",                                                                                                                                  │
+│   25 │   │   │   overrides=overrides,                                                                                                                                            │
+│   26 │   │   )                                                                                                                                                                   │
+│                                                                                                                                                                                  │
+│ ╭─────────────────────────────────────────────── locals ────────────────────────────────────────────────╮                                                                        │
+│ │       command = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000028818A980E0> │                                                                        │
+│ │       console = <briefcase.console.Console object at 0x0000028815725F70>                              │                                                                        │
+│ │ extra_cmdline = []                                                                                    │                                                                        │
+│ │       options = {}                                                                                    │                                                                        │
+│ │     overrides = {}                                                                                    │                                                                        │
+│ │        result = 0                                                                                     │                                                                        │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                        │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\base.py:1016 in parse_config                                                          │
+│                                                                                                                                                                                  │
+│   1013 │   │   │   │   │   # Construct an AppConfig object with the final set of                                                                                                 │
+│   1014 │   │   │   │   │   # configuration options for the app.                                                                                                                  │
+│   1015 │   │   │   │   │   app_config.update(overrides)                                                                                                                          │
+│ ❱ 1016 │   │   │   │   │   self.apps[app_name] = create_config(                                                                                                                  │
+│   1017 │   │   │   │   │   │   klass=AppConfig,                                                                                                                                  │
+│   1018 │   │   │   │   │   │   config=app_config,                                                                                                                                │
+│   1019 │   │   │   │   │   │   msg=f"Configuration for '{app_name}'",                                                                                                            │
+│                                                                                                                                                                                  │
+│ ╭────────────────────────────────────────────────── locals ───────────────────────────────────────────────────╮                                                                  │
+│ │    app_config = {                                                                                           │                                                                  │
+│ │                 │   'project_name': 'X-chat Android',                                                       │                                                                  │
+│ │                 │   'bundle': 'com.example',                                                                │                                                                  │
+│ │                 │   'version': '1.0.0',                                                                     │                                                                  │
+│ │                 │   'description': 'X-chat Android Application',                                            │                                                                  │
+│ │                 │   'requires_python': '>=3.8',                                                             │                                                                  │
+│ │                 │   'license': {'text': 'MIT'},                                                             │                                                                  │
+│ │                 │   'author': 'Your Name',                                                                  │                                                                  │
+│ │                 │   'author_email': 'your.email@example.com',                                               │                                                                  │
+│ │                 │   'requires': ['kivy==2.1.0', 'requests==2.31.0', 'kivy==2.1.0', 'requests==2.31.0'],     │                                                                  │
+│ │                 │   'app_name': 'xchat',                                                                    │                                                                  │
+│ │                 │   ... +6                                                                                  │                                                                  │
+│ │                 }                                                                                           │                                                                  │
+│ │   app_configs = {                                                                                           │                                                                  │
+│ │                 │   'xchat': {                                                                              │                                                                  │
+│ │                 │   │   'project_name': 'X-chat Android',                                                   │                                                                  │
+│ │                 │   │   'bundle': 'com.example',                                                            │                                                                  │
+│ │                 │   │   'version': '1.0.0',                                                                 │                                                                  │
+│ │                 │   │   'description': 'X-chat Android Application',                                        │                                                                  │
+│ │                 │   │   'requires_python': '>=3.8',                                                         │                                                                  │
+│ │                 │   │   'license': {'text': 'MIT'},                                                         │                                                                  │
+│ │                 │   │   'author': 'Your Name',                                                              │                                                                  │
+│ │                 │   │   'author_email': 'your.email@example.com',                                           │                                                                  │
+│ │                 │   │   'requires': [                                                                       │                                                                  │
+│ │                 │   │   │   'kivy==2.1.0',                                                                  │                                                                  │
+│ │                 │   │   │   'requests==2.31.0',                                                             │                                                                  │
+│ │                 │   │   │   'kivy==2.1.0',                                                                  │                                                                  │
+│ │                 │   │   │   'requests==2.31.0'                                                              │                                                                  │
+│ │                 │   │   ],                                                                                  │                                                                  │
+│ │                 │   │   'app_name': 'xchat',                                                                │                                                                  │
+│ │                 │   │   ... +6                                                                              │                                                                  │
+│ │                 │   }                                                                                       │                                                                  │
+│ │                 }                                                                                           │                                                                  │
+│ │      app_name = 'xchat'                                                                                     │                                                                  │
+│ │   config_file = <_io.BufferedReader name='V:\\代码\\X-chat-Android\\pyproject.toml'>                        │                                                                  │
+│ │      filename = WindowsPath('V:/代码/X-chat-Android/pyproject.toml')                                        │                                                                  │
+│ │ global_config = {                                                                                           │                                                                  │
+│ │                 │   'project_name': 'X-chat Android',                                                       │                                                                  │
+│ │                 │   'bundle': 'com.example',                                                                │                                                                  │
+│ │                 │   'version': '1.0.0',                                                                     │                                                                  │
+│ │                 │   'description': 'X-chat Android Application',                                            │                                                                  │
+│ │                 │   'requires_python': '>=3.8',                                                             │                                                                  │
+│ │                 │   'license': {'text': 'MIT'},                                                             │                                                                  │
+│ │                 │   'author': 'Your Name',                                                                  │                                                                  │
+│ │                 │   'author_email': 'your.email@example.com',                                               │                                                                  │
+│ │                 │   'requires': ['kivy==2.1.0', 'requests==2.31.0']                                         │                                                                  │
+│ │                 }                                                                                           │                                                                  │
+│ │     overrides = {}                                                                                          │                                                                  │
+│ │          self = <briefcase.platforms.android.gradle.GradleCreateCommand object at 0x0000028818A980E0>       │                                                                  │
+│ ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                  │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\commands\base.py:51 in create_config                                                           │
+│                                                                                                                                                                                  │
+│     48                                                                                                                                                                           │
+│     49 def create_config(klass, config, msg):                                                                                                                                    │
+│     50 │   try:                                                                                                                                                                  │
+│ ❱   51 │   │   return klass(**config)                                                                                                                                            │
+│     52 │   except TypeError as e:                                                                                                                                                │
+│     53 │   │   # Inspect the GlobalConfig constructor to find which                                                                                                              │
+│     54 │   │   # parameters are required and don't have a default value.                                                                                                         │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────── locals ─────────────────────────────────────────────╮                                                                             │
+│ │ config = {                                                                                       │                                                                             │
+│ │          │   'project_name': 'X-chat Android',                                                   │                                                                             │
+│ │          │   'bundle': 'com.example',                                                            │                                                                             │
+│ │          │   'version': '1.0.0',                                                                 │                                                                             │
+│ │          │   'description': 'X-chat Android Application',                                        │                                                                             │
+│ │          │   'requires_python': '>=3.8',                                                         │                                                                             │
+│ │          │   'license': {'text': 'MIT'},                                                         │                                                                             │
+│ │          │   'author': 'Your Name',                                                              │                                                                             │
+│ │          │   'author_email': 'your.email@example.com',                                           │                                                                             │
+│ │          │   'requires': [                                                                       │                                                                             │
+│ │          │   │   'kivy==2.1.0',                                                                  │                                                                             │
+│ │          │   │   'requests==2.31.0',                                                             │                                                                             │
+│ │          │   │   'kivy==2.1.0',                                                                  │                                                                             │
+│ │          │   │   'requests==2.31.0'                                                              │                                                                             │
+│ │          │   ],                                                                                  │                                                                             │
+│ │          │   'app_name': 'xchat',                                                                │                                                                             │
+│ │          │   ... +6                                                                              │                                                                             │
+│ │          }                                                                                       │                                                                             │
+│ │    msg = "Configuration for 'xchat'"                                                             │                                                                             │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                             │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\config.py:365 in __init__                                                                      │
+│                                                                                                                                                                                  │
+│   362 │   │   external_package_executable_path: str | None = None,                                                                                                               │
+│   363 │   │   **kwargs,                                                                                                                                                          │
+│   364 │   ):                                                                                                                                                                     │
+│ ❱ 365 │   │   super().__init__(**kwargs)                                                                                                                                         │
+│   366 │   │                                                                                                                                                                      │
+│   367 │   │   # All app configs are created in unfinalized draft form.                                                                                                           │
+│   368 │   │   self.__draft__ = True                                                                                                                                              │
+│                                                                                                                                                                                  │
+│ ╭───────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────╮                                            │
+│ │                         app_name = 'xchat'                                                                                        │                                            │
+│ │                           author = 'Your Name'                                                                                    │                                            │
+│ │                     author_email = 'your.email@example.com'                                                                       │                                            │
+│ │                           bundle = 'com.example'                                                                                  │                                            │
+│ │                      console_app = False                                                                                          │                                            │
+│ │                      description = 'X-chat Android Application'                                                                   │                                            │
+│ │                    document_type = None                                                                                           │                                            │
+│ │ external_package_executable_path = None                                                                                           │                                            │
+│ │            external_package_path = None                                                                                           │                                            │
+│ │                      formal_name = 'X-chat'                                                                                       │                                            │
+│ │                             icon = None                                                                                           │                                            │
+│ │                           kwargs = {                                                                                              │                                            │
+│ │                                    │   'project_name': 'X-chat Android',                                                          │                                            │
+│ │                                    │   'requires_python': '>=3.8',                                                                │                                            │
+│ │                                    │   'package_name': 'com.example.xchat',                                                       │                                            │
+│ │                                    │   'permissions': [                                                                           │                                            │
+│ │                                    │   │   'android.permission.INTERNET',                                                         │                                            │
+│ │                                    │   │   'android.permission.ACCESS_NETWORK_STATE'                                              │                                            │
+│ │                                    │   ],                                                                                         │                                            │
+│ │                                    │   'bootstrap': 'Toga'                                                                        │                                            │
+│ │                                    }                                                                                              │                                            │
+│ │                          license = {'text': 'MIT'}                                                                                │                                            │
+│ │                 long_description = None                                                                                           │                                            │
+│ │                       permission = None                                                                                           │                                            │
+│ │       requirement_installer_args = None                                                                                           │                                            │
+│ │                         requires = ['kivy==2.1.0', 'requests==2.31.0', 'kivy==2.1.0', 'requests==2.31.0']                         │                                            │
+│ │                             self = <repr-error "'AppConfig' object has no attribute 'bundle'">                                    │                                            │
+│ │                          sources = ['.']                                                                                          │                                            │
+│ │                        supported = True                                                                                           │                                            │
+│ │                         template = None                                                                                           │                                            │
+│ │                  template_branch = None                                                                                           │                                            │
+│ │                    test_requires = None                                                                                           │                                            │
+│ │                     test_sources = ['tests']                                                                                      │                                            │
+│ │                              url = None                                                                                           │                                            │
+│ │                          version = '1.0.0'                                                                                        │                                            │
+│ ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                            │
+│                                                                                                                                                                                  │
+│ C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\briefcase\config.py:269 in __init__                                                                      │
+│                                                                                                                                                                                  │
+│   266 class BaseConfig:                                                                                                                                                          │
+│   267 │   def __init__(self, **kwargs):                                                                                                                                          │
+│   268 │   │   for attr, value in kwargs.items():                                                                                                                                 │
+│ ❱ 269 │   │   │   setattr(self, attr, value)                                                                                                                                     │
+│   270 │                                                                                                                                                                          │
+│   271 │   def update(self, data):                                                                                                                                                │
+│   272 │   │   """Add fields and values from data to BaseConfig instance.                                                                                                         │
+│                                                                                                                                                                                  │
+│ ╭──────────────────────────────────────────────── locals ─────────────────────────────────────────────────╮                                                                      │
+│ │   attr = 'package_name'                                                                                 │                                                                      │
+│ │ kwargs = {                                                                                              │                                                                      │
+│ │          │   'project_name': 'X-chat Android',                                                          │                                                                      │
+│ │          │   'requires_python': '>=3.8',                                                                │                                                                      │
+│ │          │   'package_name': 'com.example.xchat',                                                       │                                                                      │
+│ │          │   'permissions': [                                                                           │                                                                      │
+│ │          │   │   'android.permission.INTERNET',                                                         │                                                                      │
+│ │          │   │   'android.permission.ACCESS_NETWORK_STATE'                                              │                                                                      │
+│ │          │   ],                                                                                         │                                                                      │
+│ │          │   'bootstrap': 'Toga'                                                                        │                                                                      │
+│ │          }                                                                                              │                                                                      │
+│ │   self = <repr-error "'AppConfig' object has no attribute 'bundle'">                                    │                                                                      │
+│ │  value = 'com.example.xchat'                                                                            │                                                                      │
+│ ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+AttributeError: property 'package_name' of 'AppConfig' object has no setter

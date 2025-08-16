@@ -1,0 +1,39 @@
+[build-system]
+requires = ["briefcase"]
+
+[project]
+name = "xchat"
+version = "1.0.0"
+description = "X-chat Android App"
+authors = [{name = "User", email = "user@example.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+
+[tool.briefcase]
+bundle = "com.example"
+project_name = "xchat"
+
+[tool.briefcase.app.xchat]
+formal_name = "X-chat"
+sources = ["xchat"]
+test_sources = ["tests"]
+
+requires = [
+    "kivy==2.1.0",
+    "requests==2.31.0",
+]
+test_requires = []
+
+[tool.briefcase.app.xchat.android]
+base_theme = "Theme.MaterialComponents.Light.DarkActionBar"
+build_gradle_dependencies = []
+build_gradle_extra_content = ""
+system_requires = []
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+]
