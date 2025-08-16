@@ -97,6 +97,12 @@ android.ndk = 23b
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 android.ndk_api = 21
 
+# (bool) If True, then automatically accept SDK license
+# agreements. This is intended for automation only. If set to False,
+# the default, you will be shown the license when first running
+# buildozer.
+android.accept_sdk_license = True
+
 # (str) Android asset directory. Default is the same as source.dir if not set
 android.assets_dir = %(source.dir)s/assets
 
