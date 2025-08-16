@@ -15,6 +15,7 @@ import threading
 import requests
 import random
 import os
+from kivy.core.text import LabelBase
 
 # Window配置 - 移动端适配
 Window.softinput_mode = "below_target"
@@ -340,6 +341,29 @@ class XChatAndroidApp(App):
                 return f"❌ HTTP错误: {str(e)}"
         except Exception as e:
             return f"❌ API请求失败: {str(e)}"
+
+# 使用系统内置中文字体作为 Kivy 默认字体（覆盖 Roboto），避免中文显示为未知符号
+try:
+    def _register_cjk_font_fallback():
+        candidates = [
+            '/system/fonts/NotoSansSC-Regular.otf',
+            '/system/fonts/NotoSansCJK-Regular.ttc',
+            '/system/fonts/NotoSansSC-Regular.ttf',
+            '/system/fonts/DroidSansFallback.ttf',
+            '/system/fonts/SourceHanSansCN-Regular.otf',
+            '/system/fonts/SourceHanSansCN-Regular.ttf',
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                # 覆盖默认字体名称为 Roboto，使所有未显式指定 font_name 的 Label 使用该中文字体
+                LabelBase.register(name='Roboto', fn_regular=p)
+                return p
+        return None
+
+    _register_cjk_font_fallback()
+except Exception:
+    # 忽略字体注册失败，保持原样（可能仅影响中文显示）
+    pass
 
 if __name__ == "__main__":
     XChatAndroidApp().run()
