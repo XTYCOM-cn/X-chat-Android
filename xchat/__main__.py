@@ -10,19 +10,16 @@ import threading
 import requests
 import random
 
-# 设置中文字体支持
-kivy.resources.resource_add_path('assets/fonts')
-
 # 配置区
 DEEPSEEK_API_KEY = "sk-24f56defebb149a9a7c356d39296af07"  # 替换为你的API密钥
 USER_NAME = "用户"
 
-# 主题配置
+# 主题配置 - 使用Android兼容字体
 THEMES = {
-    "X-GPT": {"primary": "#1e88e5", "secondary": "#64b5f6", "accent": "#0d47a1", "font": "Microsoft YaHei"},
-    "唐纳德": {"primary": "#e65100", "secondary": "#ed8936", "accent": "#bf360c", "font": "Arial"},
-    "DickGPT兄弟": {"primary": "#9c27b0", "secondary": "#ba68c8", "accent": "#6a0080", "font": "Arial"},
-    "原版DeepSeek": {"primary": "#0288d1", "secondary": "#4fc3f7", "accent": "#01579b", "font": "SimHei"}
+    "X-GPT": {"primary": "#1e88e5", "secondary": "#64b5f6", "accent": "#0d47a1", "font": "Roboto"},
+    "唐纳德": {"primary": "#e65100", "secondary": "#ed8936", "accent": "#bf360c", "font": "Roboto"},
+    "DickGPT兄弟": {"primary": "#9c27b0", "secondary": "#ba68c8", "accent": "#6a0080", "font": "Roboto"},
+    "原版DeepSeek": {"primary": "#0288d1", "secondary": "#4fc3f7", "accent": "#01579b", "font": "Roboto"}
 }
 
 class ChatHistory(ScrollView):
@@ -40,7 +37,7 @@ class ChatHistory(ScrollView):
             height=30,
             color=color,
             font_size=14,
-            font_name=THEMES["X-GPT"]["font"],
+            # 移除 font_name 以使用默认字体
             halign='left'
         )
         self.layout.add_widget(sender_label)
@@ -52,7 +49,7 @@ class ChatHistory(ScrollView):
             height=self.calculate_height(message),
             color=(1, 1, 1, 1),
             font_size=12,
-            font_name=THEMES["X-GPT"]["font"],
+            # 移除 font_name 以使用默认字体
             halign='left',
             text_size=(self.width - 20, None)
         )
@@ -81,7 +78,7 @@ class XChatAndroidApp(App):
         title_label = Label(
             text="X-chat-GPT",
             font_size=20,
-            font_name=THEMES[self.assistant_type]["font"],
+            # 移除 font_name 以使用默认字体
             color=(1, 1, 1, 1)
         )
         title_bar.add_widget(title_label)
@@ -97,7 +94,7 @@ class XChatAndroidApp(App):
         self.input_box = TextInput(
             hint_text="输入消息...",
             font_size=16,
-            font_name=THEMES[self.assistant_type]["font"],
+            # 移除 font_name 以使用默认字体
             background_color=(0.2, 0.2, 0.2, 1),
             foreground_color=(1, 1, 1, 1)
         )
@@ -106,7 +103,7 @@ class XChatAndroidApp(App):
         self.send_btn = Button(
             text="发送",
             font_size=16,
-            font_name=THEMES[self.assistant_type]["font"],
+            # 移除 font_name 以使用默认字体
             background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
             color=(1, 1, 1, 1)
         )
