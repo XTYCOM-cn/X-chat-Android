@@ -35,7 +35,9 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip libstdc++6 zlib1g-dev libffi-dev libssl-dev libltdl-dev libtinfo5
+        sudo apt-get install -y git zip unzip libstdc++6 zlib1g-dev libffi-dev libssl-dev libltdl-dev || true
+        # libtinfo: Ubuntu 24.04 (noble) ships libtinfo6; try libtinfo5 first, then fallback
+        (sudo apt-get install -y libtinfo5) || (sudo apt-get install -y libtinfo6)
       
     - name: Set up Python
       uses: actions/setup-python@v4
