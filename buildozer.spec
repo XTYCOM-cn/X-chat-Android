@@ -22,10 +22,10 @@ source.include_patterns = assets/*,images/*
 source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = venv,.git,.idea
+source.exclude_dirs = venv,.git,.idea,test,tests
 
 # (list) List of exclusions using pattern matching
-source.exclude_patterns =
+source.exclude_patterns = **/test/**,**/tests/**,**/badsyntax_pep3120.py
 
 # (str) Application versioning (method 1)
 version = 0.1
