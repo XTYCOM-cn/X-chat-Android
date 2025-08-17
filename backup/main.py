@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.metrics import sp
 import threading
 import requests
 import random
@@ -71,6 +72,18 @@ class XChatAndroidApp(App):
         super(XChatAndroidApp, self).__init__(**kwargs)
         self.assistant_type = "X-GPT"
 
+    def get_send_button_text(self):
+        """根据助手类型返回发送按钮文本"""
+        if self.assistant_type == "X-GPT":
+            return "🚀 执行任务"
+        elif self.assistant_type == "唐纳德":
+            return "🚀 发布推文"
+        elif self.assistant_type == "DickGPT兄弟":
+            return "🚀 喷射真理"
+        elif self.assistant_type == "原版DeepSeek":
+            return "发送"
+        return "发送"
+
     def build(self):
         # 主布局
         main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
@@ -104,9 +117,8 @@ class XChatAndroidApp(App):
         input_layout.add_widget(self.input_box)
 
         self.send_btn = Button(
-            text="发送",
-            font_size=16,
-            font_name=THEMES[self.assistant_type]["font"],
+            text=self.get_send_button_text(),
+            font_size=sp(14),
             background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
             color=(1, 1, 1, 1)
         )

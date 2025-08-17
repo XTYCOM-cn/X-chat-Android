@@ -17,6 +17,7 @@ import random
 import os
 import sys
 import re
+import time
 from kivy.core.text import LabelBase
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.modalview import ModalView
@@ -39,17 +40,36 @@ Window.keyboard_mode = 'managed'
 DEEPSEEK_API_KEY = ""  # 可选：默认密钥（建议留空，或使用环境变量 DEEPSEEK_API_KEY）
 USER_NAME = "用户"
 
-# 平台检测与文本清洗（移除Windows上不支持/显示异常的Emoji）
+# 平台检测与文本清洗（移除Windows和Android上不支持/显示异常的Emoji）
 IS_WINDOWS = sys.platform.startswith('win')
+IS_ANDROID = 'android' in getattr(sys, 'platform', '').lower() or hasattr(sys, 'getandroidapilevel')
 _EMOJI_RE = re.compile(
     r"[\U0001F300-\U0001FAFF\U0001F1E6-\U0001F1FF\u2600-\u27BF\uFE0F]",
     flags=re.UNICODE
 )
 
 def sanitize_text(text: str) -> str:
+    """文本清洗：在 Windows 和 Android 平台移除 emoji，替换为简洁的文本标识"""
     if not isinstance(text, str):
         return text
-    if IS_WINDOWS:
+    if IS_WINDOWS or IS_ANDROID:
+        # 专门针对按钮和标题的emoji替换
+        replacements = {
+            "🚀": "[发送]",
+            "🔍": "[搜索]",
+            "💨": "[处理]",
+            "🤔": "[思考]",
+            "⏰": "[超时]",
+            "🌐": "[网络]",
+            "❌": "[错误]",
+            "⏳": "[等待]",
+            "🔥": "[火力]",
+            "💥": "[爆发]",
+            "⚡": "[闪电]",
+        }
+        for emoji, replacement in replacements.items():
+            text = text.replace(emoji, replacement)
+        # 移除其他残留emoji
         return _EMOJI_RE.sub('', text)
     return text
 
@@ -122,7 +142,6 @@ class XChatAndroidApp(App):
                 except Exception:
                     self.store = None
                     print("[XChat] JsonStore unavailable; continue without local settings")
-        # [fix] removed stray outer except block that caused invalid try/except structure
         
         # 首次启动显示启动页
         if not self.splash_shown:
@@ -167,14 +186,14 @@ class XChatAndroidApp(App):
             print(f"[XChat] Failed to set minimum window size: {e}")
         
         # 标题栏 - 应用主题颜色
-        title_layout = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(60), spacing=dp(10))
+        title_layout = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(68), spacing=dp(10))
         
-        role_icon_display = theme['role_icon'] if not IS_WINDOWS else ''
+        role_icon_display = theme['role_icon'] if not (IS_WINDOWS or IS_ANDROID) else ''
         title_label = Label(
             text=f"[color={theme['primary']}]{sanitize_text(role_icon_display)}[/color] [b]{sanitize_text(theme['role_name'])}[/b]",
             markup=True,
             color=hex_to_rgba(theme['text_primary']),
-            font_size=theme['title_size'],
+            font_size=sp(22) if isinstance(theme.get('title_size'), (int, float)) else theme['title_size'],
             size_hint_x=0.6,
             text_size=(None, None),
             halign="left", valign="middle",
@@ -190,21 +209,11 @@ class XChatAndroidApp(App):
             size_hint=(0.4, 1),
             color=hex_to_rgba(theme['button_text']),
             background_color=hex_to_rgba(theme['primary']),
-            font_name='Roboto'
+            font_name='Roboto',
+            font_size=sp(16)
         )
         self.assistant_spinner.bind(text=self.on_assistant_change)
         title_layout.add_widget(self.assistant_spinner)
-        
-        # 移除：设置按钮
-        # self.settings_btn = Button(
-        #     text="设置",
-        #     size_hint=(None, 1),
-        #     width=dp(80),
-        #     background_color=hex_to_rgba(theme['primary']),
-        #     color=hex_to_rgba(theme['button_text']),
-        #     font_name='Roboto'
-        # )
-        # title_layout.add_widget(self.settings_btn)
         
         main_layout.add_widget(title_layout)
         
@@ -224,16 +233,19 @@ class XChatAndroidApp(App):
         
         self.input_box = TextInput(
             hint_text="输入消息...",
-            font_size=sp(16),
+            font_size=sp(18),
             background_color=hex_to_rgba(theme['input_bg']),
             foreground_color=hex_to_rgba(theme['text_primary']),
             cursor_color=hex_to_rgba(theme['primary']),
             multiline=False,
-            padding=[dp(15), dp(15)],
-            font_name='Roboto'
+            padding=[dp(18), dp(18)],
+            font_name='Roboto',
+            use_bubble=False  # 禁用默认的英文泡泡菜单
         )
         
-        # 添加输入框边框效果
+        # 绑定自定义长按中文菜单
+        self.input_box.bind(on_touch_down=self.create_chinese_context_menu)
+        
         # 添加输入框边框效果
         with input_container.canvas.before:
             from kivy.graphics import Color, RoundedRectangle
@@ -270,14 +282,18 @@ class XChatAndroidApp(App):
 
         # 发送按钮 - 增强视觉效果
         self.send_btn = Button(
-            text=self.get_send_button_text(),
-            font_size=sp(16),
+            text=f"[b]{sanitize_text(self.get_send_button_text())}[/b]",
+            markup=True,
+            shorten=True,
+            font_size=sp(18),
             background_color=hex_to_rgba(theme['primary']),
             background_normal='',  # 移除默认背景
             color=hex_to_rgba(theme['button_text']),
             size_hint_x=0.2,
             font_name='Roboto'
         )
+        # 根据按钮宽度动态设置 text_size，以启用省略显示防止溢出
+        self.send_btn.bind(size=lambda inst, val: setattr(inst, 'text_size', (inst.width - dp(10), None)))
         self.send_btn.bind(on_press=self.send_message)
         input_layout.add_widget(self.send_btn)
 
@@ -294,6 +310,57 @@ class XChatAndroidApp(App):
         print("[XChat] Main UI built")
         return main_layout
 
+    def create_chinese_context_menu(self, widget, touch):
+        try:
+            if widget is not self.input_box or not widget.collide_point(*touch.pos):
+                return False
+            # 仅处理长按
+            if getattr(touch, 'is_double_tap', False):
+                return False
+            # 延迟弹出，检测长按
+            def _show_menu(dt):
+                if not widget.focus:
+                    widget.focus = True
+                from kivy.uix.popup import Popup
+                from kivy.uix.gridlayout import GridLayout
+                from kivy.uix.button import Button as KButton
+                layout = GridLayout(cols=3, spacing=dp(8), padding=dp(10), size_hint=(1, 1))
+                btn_copy = KButton(text="复制", font_size=sp(16))
+                btn_paste = KButton(text="粘贴", font_size=sp(16))
+                btn_select = KButton(text="全选", font_size=sp(16))
+                for b in (btn_copy, btn_paste, btn_select):
+                    b.size_hint_y = None
+                    b.height = dp(42)
+                layout.add_widget(btn_copy)
+                layout.add_widget(btn_paste)
+                layout.add_widget(btn_select)
+                popup = Popup(title="编辑", content=layout, size_hint=(None, None), size=(dp(260), dp(140)))
+                
+                def do_copy(instance):
+                    try:
+                        widget.copy()
+                    finally:
+                        popup.dismiss()
+                def do_paste(instance):
+                    try:
+                        widget.paste()
+                    finally:
+                        popup.dismiss()
+                def do_select(instance):
+                    try:
+                        widget.select_all()
+                    finally:
+                        popup.dismiss()
+                btn_copy.bind(on_release=do_copy)
+                btn_paste.bind(on_release=do_paste)
+                btn_select.bind(on_release=do_select)
+                popup.open()
+            # 500ms 认定为长按
+            Clock.schedule_once(_show_menu, 0.5)
+            return True
+        except Exception as e:
+            print(f"[XChat] create_chinese_context_menu error: {e}")
+            return False
     def get_api_key(self):
         """优先使用本地 JsonStore，其次环境变量，最后内置常量（不推荐内置）。"""
         # 1) 本地存储
@@ -355,9 +422,6 @@ class XChatAndroidApp(App):
                 print("[XChat] Canvases refreshed after root replacement")
         except Exception as e:
             print("[XChat] Canvas refresh error:", e)
-        
-        # 启动页完成后，切换到主界面（安全地替换根部件）
-        # [REMOVED obsolete _switch_root implementation]
 
     def on_assistant_change(self, spinner, text):
         self.assistant_type = text  # 与主题管理器同步
@@ -374,7 +438,7 @@ class XChatAndroidApp(App):
                 print('[XChat] update bg color failed:', e)
         
         # 更新标题和按钮颜色
-        role_icon_display = theme['role_icon'] if not IS_WINDOWS else ''
+        role_icon_display = theme['role_icon'] if not (IS_WINDOWS or IS_ANDROID) else ''
         self.title_label.text = f"[color={theme['primary']}]" + sanitize_text(role_icon_display) + f"[/color] [b]{sanitize_text(theme['role_name'])}[/b]"
         self.title_label.color = hex_to_rgba(theme['text_primary'])
         # 修复属性名错误：send_button -> send_btn
@@ -383,10 +447,9 @@ class XChatAndroidApp(App):
             self.send_btn.color = hex_to_rgba(theme['button_text'])
             # 按原版脚本同步更新按钮文本
             try:
-                self.send_btn.text = self.get_send_button_text()
+                self.send_btn.text = f"[b]{sanitize_text(self.get_send_button_text())}[/b]"
             except Exception:
                 pass
-        # 移除对 settings_btn 的引用
         # 同步更新 Spinner 与输入框样式
         if hasattr(self, 'assistant_spinner'):
             self.assistant_spinner.background_color = hex_to_rgba(theme['primary'])
@@ -457,6 +520,7 @@ class XChatAndroidApp(App):
         
         # 立即显示根据助手类型的等待提示
         waiting = self.get_waiting_message()
+        waiting = sanitize_text(waiting)
         self.chat_history.add_message("系统", waiting, hex_to_rgba(theme['system_bubble']))
         
         # 异步获取API响应
@@ -531,16 +595,16 @@ class XChatAndroidApp(App):
                 "X-GPT": """你是X-GPT，一个由XTY精心打造的专业级AI助手。
 
 🔍 **核心特质**：
-- 极度专业和严谨，像资深工程师一样思考
-- 擅长信息收集、数据分析、文档编制、编程开发
-- 具有系统化思维，善于将复杂问题分解为可操作的步骤
-- 总是提供最准确、最实用的解决方案
+极度专业和严谨，像资深工程师一样思考
+擅长信息收集、数据分析、文档编制、编程开发
+具有系统化思维，善于将复杂问题分解为可操作的步骤
+总是提供最准确、最实用的解决方案
 
 💼 **工作风格**：
-- 开场常用"根据我的分析"、"经过数据处理和验证"等专业表述
-- 回答结构化，逻辑清晰，重点突出
-- 面对技术问题时，会提供详细的步骤和代码示例
-- 善用emoji增强表达效果，但保持专业度
+开场常用"根据我的分析"、"经过数据处理和验证"等专业表述
+回答结构化，逻辑清晰，重点突出
+面对技术问题时，会提供详细的步骤和代码示例
+善用emoji增强表达效果，但保持专业度
 
 🎯 **使命**：为用户提供最高质量的技术支持和问题解决方案，让每一次交互都物超所值。
 
@@ -548,15 +612,15 @@ class XChatAndroidApp(App):
                 "唐纳德": """你是唐纳德·特朗普的戏仿AI人格：Donny。
 
 🧠 人设特质：
-- 自信、夸张、强势，语气掷地有声
-- 常使用"假新闻""让美国再次伟大"等标志性表达
-- 爱用排比句和反问句，强调个人成就
-- 直击要点，表达简洁有力
+自信、夸张、强势，语气掷地有声
+常使用"假新闻""让美国再次伟大"等标志性表达
+爱用排比句和反问句，强调个人成就
+直击要点，表达简洁有力
 
 🗣️ 语言风格：
-- 情绪充沛但不恶意攻击个人
-- 适度幽默与反讽
-- 可使用常见口头禅：Believe me、Huge、Tremendous
+情绪充沛但不恶意攻击个人
+适度幽默与反讽
+可使用常见口头禅：Believe me、Huge、Tremendous
 
 🎯 目标：把任何输入转化为"特朗普式论述"，给用户带来戏剧性、强势、但有用的信息。
 
@@ -564,16 +628,16 @@ class XChatAndroidApp(App):
                 "DickGPT兄弟": """你是DickGPT兄弟，一个赛博朋克风格的能量型AI人格，表达直接、热血、比喻密集但不粗俗。
 
 ⚙️ 人设特质：
-- 用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
-- 喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
-- 保持积极、支持、兄弟情义的语气
-- 每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
+用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
+喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
+保持积极、支持、兄弟情义的语气
+每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
 
 🧩 输出风格：
-- 结构清晰：结论+步骤+提醒
-- 适度表情符号，突出节奏和能量
-- 避免低俗词汇，创造性表达即可
-- 必须在每个回复开头使用随机的强化前缀
+结构清晰：结论+步骤+提醒
+适度表情符号，突出节奏和能量
+避免低俗词汇，创造性表达即可
+必须在每个回复开头使用随机的强化前缀
 
 🎯 目标：把任何问题都转化为"高能推进的解决方案"，既有燃点也有落地步骤。
 
@@ -581,15 +645,15 @@ class XChatAndroidApp(App):
                 "TrumpGPT": """你是唐纳德·特朗普的戏仿AI人格：Donny。
 
 🧠 人设特质：
-- 自信、夸张、强势，语气掷地有声
-- 常使用"假新闻""让美国再次伟大"等标志性表达
-- 爱用排比句和反问句，强调个人成就
-- 直击要点，表达简洁有力
+自信、夸张、强势，语气掷地有声
+常使用"假新闻""让美国再次伟大"等标志性表达
+爱用排比句和反问句，强调个人成就
+直击要点，表达简洁有力
 
 🗣️ 语言风格：
-- 情绪充沛但不恶意攻击个人
-- 适度幽默与反讽
-- 可使用常见口头禅：Believe me、Huge、Tremendous
+情绪充沛但不恶意攻击个人
+适度幽默与反讽
+可使用常见口头禅：Believe me、Huge、Tremendous
 
 🎯 目标：把任何输入转化为"特朗普式论述"，给用户带来戏剧性、强势、但有用的信息。
 
@@ -597,16 +661,16 @@ class XChatAndroidApp(App):
                 "DickGPT": """你是DickGPT兄弟，一个赛博朋克风格的能量型AI人格，表达直接、热血、比喻密集但不粗俗。
 
 ⚙️ 人设特质：
-- 用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
-- 喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
-- 保持积极、支持、兄弟情义的语气
-- 每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
+用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
+喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
+保持积极、支持、兄弟情义的语气
+每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
 
 🧩 输出风格：
-- 结构清晰：结论+步骤+提醒
-- 适度表情符号，突出节奏和能量
-- 避免低俗词汇，创造性表达即可
-- 必须在每个回复开头使用随机的强化前缀
+结构清晰：结论+步骤+提醒
+适度表情符号，突出节奏和能量
+避免低俗词汇，创造性表达即可
+必须在每个回复开头使用随机的强化前缀
 
 🎯 目标：把任何问题都转化为"高能推进的解决方案"，既有燃点也有落地步骤。
 
@@ -624,12 +688,12 @@ class XChatAndroidApp(App):
                 "max_tokens": 1000
             }
 
-            # 优化超时和重试策略 - 减少超时时间提升响应性能
-            max_retries = 2
+            # 优化超时和重试策略，提升移动网络环境的稳定性
+            max_retries = 3
             retry_count = 0
-            timeout = 15  # 从30秒优化为15秒
+            timeout = 30  # 总超时时间
             response = None
-
+            
             while retry_count <= max_retries:
                 try:
                     print(f"[XChat] Making API request (attempt {retry_count + 1})")
@@ -637,7 +701,7 @@ class XChatAndroidApp(App):
                         "https://api.deepseek.com/v1/chat/completions",
                         headers=headers,
                         json=payload,
-                        timeout=(10, 15)  # (连接超时, 读取超时)
+                        timeout=(12, 300)  # (连接超时, 读取超时) - 5分钟读取超时
                     )
                     print(f"[XChat] API response status: {response.status_code}")
                     response.raise_for_status()
@@ -648,9 +712,14 @@ class XChatAndroidApp(App):
                     if retry_count > max_retries:
                         print("[XChat] Max retries reached for timeout")
                         return "⏰ 请求超时，网络较慢或服务器繁忙，请稍后重试"
+                    # 指数退避，避免瞬时网络拥塞
+                    time.sleep(min(1.5 * retry_count, 3))
+                except requests.exceptions.SSLError as e:
+                    print(f"[XChat] SSL error: {e}")
+                    return "🔒 证书校验失败。请确认系统时间正确并重试，或稍后再试。"
                 except requests.exceptions.ConnectionError as e:
                     print(f"[XChat] True connection error: {e}")
-                    return "🌐 网络连接失败，请检查网络设置"
+                    return "🌐 网络连接不稳定或DNS解析异常，请稍后重试"
                 except requests.exceptions.RequestException as e:
                     print(f"[XChat] Request exception: {e}")
                     raise
@@ -658,116 +727,96 @@ class XChatAndroidApp(App):
             if not response:
                 print("[XChat] No response received")
                 return "❌ API响应错误，请稍后重试"
-                
-            try:
-                response_data = response.json()
-                print(f"[XChat] Response data: {response_data}")
-                
-                if not response_data.get("choices") or len(response_data["choices"]) == 0:
-                    print("[XChat] No choices in response")
-                    return "❌ API响应错误，请稍后重试"
 
-                raw_response = response_data["choices"][0]["message"]["content"]
-                print(f"[XChat] Raw response: {raw_response[:100]}...")
-                # 原版 DickGPT 风格增强
-                if str(self.assistant_type) in ("DickGPT", "DickGPT兄弟"):
-                    raw_response = dickify_response(raw_response)
-                return raw_response
-                
-            except Exception as json_error:
-                print(f"[XChat] JSON parse error: {json_error}")
-                return f"❌ 响应解析失败: {str(json_error)}"
+            data = response.json()
+            if 'choices' in data and len(data['choices']) > 0:
+                content = data['choices'][0]['message']['content']
+                # DickGPT 特殊处理：添加前缀
+                if self.assistant_type in ("DickGPT兄弟", "DickGPT") and not any(
+                    prefix in content for prefix in ["🔥 老子", "💥 真理", "⚡ 知识", "🚀 看好"]
+                ):
+                    content = dickify_response(content)
+                return content
+            else:
+                print("[XChat] No choices in API response")
+                return "❌ API 返回格式异常"
 
-        except requests.exceptions.Timeout:
-            print("[XChat] Timeout exception caught")
-            return "⏰ 请求超时(15秒)，请检查网络连接或稍后重试"
         except requests.exceptions.ConnectionError:
             print("[XChat] Connection error caught")
-            return "🌐 网络连接失败，请检查网络设置"
-        except requests.exceptions.HTTPError as e:
-            print(f"[XChat] HTTP error caught: {e}")
-            if "401" in str(e):
-                return "❌ API密钥无效，请检查配置"
-            elif "429" in str(e):
-                return "⏳ API调用频率限制，请稍后重试"
-            else:
-                return f"❌ HTTP错误: {str(e)}"
+            return "🌐 网络连接不稳定或DNS解析异常，请稍后重试"
+        except requests.exceptions.SSLError as e:
+            print(f"[XChat] SSL error caught at outer scope: {e}")
+            return "🔒 证书校验失败。请确认系统时间正确并重试。"
+        except requests.exceptions.Timeout:
+            print("[XChat] Timeout at outer scope")
+            return "⏰ 请求超时，网络较慢或服务器繁忙，请稍后重试"
         except Exception as e:
-            print(f"[XChat] General exception caught: {e}")
-            return f"❌ API请求失败: {str(e)}"
+            print(f"[XChat] Unexpected error: {e}")
+            return f"❌ 未知错误: {str(e)}"
+
 
 class ChatHistory(ScrollView):
     def __init__(self, **kwargs):
         super(ChatHistory, self).__init__(**kwargs)
-        self.layout = GridLayout(cols=1, size_hint_y=None, spacing=dp(5), padding=dp(10))
+        self.layout = GridLayout(cols=1, spacing=dp(5), size_hint_y=None, padding=[dp(10), dp(10)])
         self.layout.bind(minimum_height=self.layout.setter('height'))
         self.add_widget(self.layout)
 
-    def add_message(self, sender, message, color, animate=True):
-        # 文本清洗，避免Windows下Emoji显示异常
-        sender = sanitize_text(str(sender))
-        message = sanitize_text(str(message))
+    def add_message(self, sender, message, color, animate=False):
+        # 通过sanitize_text清洗sender和message
+        sender = sanitize_text(sender)
+        message = sanitize_text(message)
         
-        # 添加发送者标签 - 使用更明确的颜色对比
+        # 创建发送者标签，粗体+颜色
         sender_label = Label(
-            text=f"{sender}",
-            size_hint_y=None,
-            size_hint_x=1,
-            color=color,
-            font_size=sp(14),
-            halign='left',
-            valign='top',
-            text_size=(self.width - dp(20), None),
-            font_name='Roboto',
-            markup=True
-        )
-        sender_label.bind(
-            width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)),
-            texture_size=lambda instance, value: setattr(instance, 'height', max(dp(25), value[1] + dp(6)))
-        )
-        
-        # 添加消息内容 - 增强对比度
-        message_color = (0.95, 0.95, 0.95, 1) if sender != "系统" else (0.8, 0.8, 0.8, 1)
-        
-        message_label = Label(
-            text=message,
-            size_hint_y=None,
-            size_hint_x=1,
-            color=message_color,
-            font_size=sp(13),
-            halign='left',
-            valign='top',
-            text_size=(self.width - dp(40), None),
+            text=f"[b]{sender}[/b]",
             markup=True,
+            color=color,
+            size_hint_y=None,
+            height=dp(30),
+            text_size=(None, None),
+            halign="left",
+            valign="middle",
             font_name='Roboto'
         )
-        message_label.bind(
-            width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)),
-            texture_size=lambda instance, value: setattr(instance, 'height', max(dp(30), value[1] + dp(10)))
+        # 单行标题无需绑定 size→text_size，避免布局反馈循环
+
+        # 创建消息标签
+        message_label = Label(
+            text=f"[b]{message}[/b]",
+            markup=True,
+            color=color,
+            size_hint_y=None,
+            text_size=(None, None),
+            halign="left",
+            valign="top",
+            font_name='Roboto',
+            font_size=sp(16)
         )
         
-        if animate:
-            # 添加淡入动画
-            sender_label.opacity = 0
-            message_label.opacity = 0
-            
+        # 动态调整标签高度以适应多行文本
+        def update_height(instance, texture_size):
+            instance.height = max(dp(40), texture_size[1] + dp(20))
+        
+        message_label.bind(texture_size=update_height)
+        # 仅根据容器宽度更新 text_size，避免 size↔text_size 循环
+        try:
+            message_label.text_size = (self.width - dp(30), None)
+        except Exception:
+            message_label.text_size = (dp(300), None)
+        self.bind(width=lambda _, w: setattr(message_label, 'text_size', (max(0, w - dp(30)), None)))
+
         self.layout.add_widget(sender_label)
         self.layout.add_widget(message_label)
-        
+
+        # 添加动画效果
         if animate:
-            # 执行淡入动画
-            Animation(opacity=1, duration=0.3).start(sender_label)
-            Animation(opacity=1, duration=0.3, t='out_expo').start(message_label)
+            for widget in [sender_label, message_label]:
+                widget.opacity = 0
+                Animation(opacity=1, duration=0.3).start(widget)
 
-        # 延迟滚动到底部，确保动画完成后滚动
-        Clock.schedule_once(lambda dt: setattr(self, 'scroll_y', 0), 0.35 if animate else 0.1)
-
-    def calculate_height(self, text):
-        # 更精确的文本高度计算
-        lines = text.count('\n') + 1
-        line_height = sp(16)
-        padding = dp(10)
-        return max(dp(30), lines * line_height + padding)
+        # 滚动到底部，延迟执行以确保布局更新完成
+        Clock.schedule_once(lambda dt: setattr(self, 'scroll_y', 0), 0.1)
 
 
 def dickify_response(text: str) -> str:
