@@ -153,7 +153,7 @@ ENHANCED_THEMES = {
             "input_bg": "#4a2e7c",     # 紫色输入框背景
             "input_border": "#6a4c93", # 协调的紫色边框，不再是棕色
             "button_text": "#ffffff",
-            "divider": "#4e342e",
+            "divider": "#B65C00",      # 统一为深橙分割线，避免被后项覆盖
             
             "user_bubble": "#FF8C00",   # 使用特朗普橙色
             "bot_bubble": "#4a2e7c",
