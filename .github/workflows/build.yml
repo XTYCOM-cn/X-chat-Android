@@ -72,6 +72,13 @@ jobs:
         echo "y" | head -n 20 > ~/.android/repositories.cfg || true
         yes | sdkmanager --licenses >/dev/null 2>&1 || true
         
+    - name: Inject API key into build (masked)
+      run: |
+        # Replace the empty DEEPSEEK_API_KEY placeholder with the secret
+        # GitHub automatically masks secrets in logs for security
+        sed -i 's/^DEEPSEEK_API_KEY = ".*"/DEEPSEEK_API_KEY = "${{ secrets.DEEPSEEK_API_KEY }}"/' xchat/__main__.py
+        echo "✅ API key injection completed (content masked by GitHub)"
+        
     - name: Build APK with Buildozer
       run: |
         buildozer -v android $BUILD_TYPE
