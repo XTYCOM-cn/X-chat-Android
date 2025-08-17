@@ -122,14 +122,7 @@ class XChatAndroidApp(App):
                 except Exception:
                     self.store = None
                     print("[XChat] JsonStore unavailable; continue without local settings")
-        except Exception:
-            try:
-                self.store = JsonStore(os.path.join(data_dir, 'settings.json'))
-            except Exception:
-                try:
-                    self.store = JsonStore('settings.json')
-                except Exception:
-                    self.store = None
+        # [fix] removed stray outer except block that caused invalid try/except structure
         
         # 首次启动显示启动页
         if not self.splash_shown:
