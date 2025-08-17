@@ -586,14 +586,29 @@ class EnhancedXChatApp(App):
     def _ensure_api_key(self):
         """确保已有 API 密钥，若无则提示输入"""
         if not self.get_api_key():
-            self.chat_history.add_message("系统", "未检测到 API 密钥，请在环境变量 DEEPSEEK_API_KEY 中配置后重试。", "system", animate=True)
-            # 设置入口已移除，这里不再弹出任何对话框
+            self.chat_history.add_message(
+                "系统",
+                "未检测到 API 密钥，请通过环境变量 DEEPSEEK_API_KEY 或在 settings.json 中配置后重试。",
+                "system",
+                animate=True,
+            )
 
     def get_api_key(self) -> str:
-        """读取 API 密钥，仅从环境变量读取（不再使用本地存储）"""
+        """读取 API 密钥：优先环境变量，其次本地 JsonStore('api.key')"""
+        # 1) 环境变量优先
         env = os.environ.get("DEEPSEEK_API_KEY", "")
-        return sanitize_api_key(env) if isinstance(env, str) else env
-            
+        k = sanitize_api_key(env) if isinstance(env, str) else env
+        if k:
+            return k
+        # 2) 本地存储回退（兼容旧版本已保存的 key）
+        try:
+            if hasattr(self, 'store') and self.store and self.store.exists('api'):
+                val = self.store.get('api').get('key', '')
+                return sanitize_api_key(val)
+        except Exception as e:
+            print(f"读取本地密钥失败: {e}")
+        return ""
+
     def send_message(self, instance):
         """发送消息"""
         user_input = self.input_box.text.strip()
@@ -603,7 +618,12 @@ class EnhancedXChatApp(App):
         # 检查密钥
         api_key = self.get_api_key()
         if not api_key:
-            self.chat_history.add_message("系统", "未检测到 API 密钥，请在环境变量 DEEPSEEK_API_KEY 中配置后重试。", "system", animate=True)
+            self.chat_history.add_message(
+                "系统",
+                "未检测到 API 密钥，请通过环境变量 DEEPSEEK_API_KEY 或在 settings.json 中配置后重试。",
+                "system",
+                animate=True,
+            )
             return
             
         # 添加发送按钮动画
