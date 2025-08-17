@@ -244,7 +244,7 @@ class XChatAndroidApp(App):
         )
         
         # 绑定自定义长按中文菜单
-        self.input_box.bind(on_touch_down=self.create_chinese_context_menu)
+        self.input_box.bind(on_touch_down=self.on_input_touch_down)
         
         # 添加输入框边框效果
         with input_container.canvas.before:
@@ -310,57 +310,125 @@ class XChatAndroidApp(App):
         print("[XChat] Main UI built")
         return main_layout
 
-    def create_chinese_context_menu(self, widget, touch):
-        try:
-            if widget is not self.input_box or not widget.collide_point(*touch.pos):
-                return False
-            # 仅处理长按
-            if getattr(touch, 'is_double_tap', False):
-                return False
-            # 延迟弹出，检测长按
-            def _show_menu(dt):
-                if not widget.focus:
-                    widget.focus = True
-                from kivy.uix.popup import Popup
-                from kivy.uix.gridlayout import GridLayout
-                from kivy.uix.button import Button as KButton
-                layout = GridLayout(cols=3, spacing=dp(8), padding=dp(10), size_hint=(1, 1))
-                btn_copy = KButton(text="复制", font_size=sp(16))
-                btn_paste = KButton(text="粘贴", font_size=sp(16))
-                btn_select = KButton(text="全选", font_size=sp(16))
-                for b in (btn_copy, btn_paste, btn_select):
-                    b.size_hint_y = None
-                    b.height = dp(42)
-                layout.add_widget(btn_copy)
-                layout.add_widget(btn_paste)
-                layout.add_widget(btn_select)
-                popup = Popup(title="编辑", content=layout, size_hint=(None, None), size=(dp(260), dp(140)))
-                
-                def do_copy(instance):
-                    try:
-                        widget.copy()
-                    finally:
-                        popup.dismiss()
-                def do_paste(instance):
-                    try:
-                        widget.paste()
-                    finally:
-                        popup.dismiss()
-                def do_select(instance):
-                    try:
-                        widget.select_all()
-                    finally:
-                        popup.dismiss()
-                btn_copy.bind(on_release=do_copy)
-                btn_paste.bind(on_release=do_paste)
-                btn_select.bind(on_release=do_select)
-                popup.open()
-            # 500ms 认定为长按
-            Clock.schedule_once(_show_menu, 0.5)
-            return True
-        except Exception as e:
-            print(f"[XChat] create_chinese_context_menu error: {e}")
+    def on_input_touch_down(self, widget, touch):
+        """处理输入框触摸开始"""
+        if widget is not self.input_box or not widget.collide_point(*touch.pos):
             return False
+        
+        try:
+            # 记录触摸开始时间和位置
+            self._touch_start_time = touch.time_start
+            self._touch_start_pos = touch.pos
+            self._long_press_event = None
+            
+            # 设置长按检测定时器（0.8秒）
+            def _check_long_press(dt):
+                try:
+                    if hasattr(self, '_touch_start_time') and self._touch_start_time:
+                        self._show_chinese_menu()
+                except Exception as e:
+                    print(f"[XChat] long press check error: {e}")
+                    
+            self._long_press_event = Clock.schedule_once(_check_long_press, 0.5)
+            return False  # 让默认处理继续
+        except Exception as e:
+            print(f"[XChat] input touch down error: {e}")
+            return False
+    
+    def on_input_touch_up(self, widget, touch):
+        """处理输入框触摸结束"""
+        if widget is not self.input_box:
+            return False
+            
+        try:
+            # 取消长按检测
+            if hasattr(self, '_long_press_event') and self._long_press_event:
+                self._long_press_event.cancel()
+                self._long_press_event = None
+            
+            # 清除触摸状态
+            if hasattr(self, '_touch_start_time'):
+                self._touch_start_time = None
+            if hasattr(self, '_touch_start_pos'):
+                self._touch_start_pos = None
+                
+            return False  # 让默认处理继续
+        except Exception as e:
+            print(f"[XChat] input touch up error: {e}")
+            return False
+    
+    def on_input_touch_move(self, widget, touch):
+        """处理输入框触摸移动"""
+        if widget is not self.input_box:
+            return False
+            
+        try:
+            # 如果移动距离过大，取消长按
+            if hasattr(self, '_touch_start_pos') and self._touch_start_pos:
+                dx = abs(touch.x - self._touch_start_pos[0])
+                dy = abs(touch.y - self._touch_start_pos[1])
+                if dx > dp(20) or dy > dp(20):  # 移动超过20dp取消长按
+                    if hasattr(self, '_long_press_event') and self._long_press_event:
+                        self._long_press_event.cancel()
+                        self._long_press_event = None
+                        
+            return False  # 让默认处理继续
+        except Exception as e:
+            print(f"[XChat] input touch move error: {e}")
+            return False
+    
+    def _show_chinese_menu(self):
+        """显示中文编辑菜单"""
+        try:
+            from kivy.uix.popup import Popup
+            from kivy.uix.gridlayout import GridLayout
+            from kivy.uix.button import Button as KButton
+            
+            layout = GridLayout(cols=3, spacing=dp(8), padding=dp(10), size_hint=(1, 1))
+            btn_copy = KButton(text="复制", font_size=sp(16))
+            btn_paste = KButton(text="粘贴", font_size=sp(16))
+            btn_select = KButton(text="全选", font_size=sp(16))
+            
+            for b in (btn_copy, btn_paste, btn_select):
+                b.size_hint_y = None
+                b.height = dp(42)
+                
+            layout.add_widget(btn_copy)
+            layout.add_widget(btn_paste)
+            layout.add_widget(btn_select)
+            
+            popup = Popup(
+                title="编辑", 
+                content=layout, 
+                size_hint=(None, None), 
+                size=(dp(260), dp(140))
+            )
+            
+            def do_copy(instance):
+                try:
+                    self.input_box.copy()
+                finally:
+                    popup.dismiss()
+                    
+            def do_paste(instance):
+                try:
+                    self.input_box.paste()
+                finally:
+                    popup.dismiss()
+                    
+            def do_select(instance):
+                try:
+                    self.input_box.select_all()
+                finally:
+                    popup.dismiss()
+                    
+            btn_copy.bind(on_release=do_copy)
+            btn_paste.bind(on_release=do_paste)
+            btn_select.bind(on_release=do_select)
+            
+            popup.open()
+        except Exception as e:
+            print(f"[XChat] show chinese menu error: {e}")
     def get_api_key(self):
         """优先使用本地 JsonStore，其次环境变量，最后内置常量（不推荐内置）。"""
         # 1) 本地存储
