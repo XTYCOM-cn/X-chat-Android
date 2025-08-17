@@ -19,6 +19,9 @@ import sys
 import re
 from kivy.core.text import LabelBase
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.modalview import ModalView
+from kivy.storage.jsonstore import JsonStore
+
 
 # 添加父目录到sys.path以导入根目录模块
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,7 +36,7 @@ Window.keyboard_anim_args = {'d': .2, 't': 'in_out_expo'}
 Window.keyboard_mode = 'managed'
 
 # 配置区
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")  # 从环境变量读取，默认为空
+DEEPSEEK_API_KEY = ""  # 可选：默认密钥（建议留空，或使用环境变量 DEEPSEEK_API_KEY）
 USER_NAME = "用户"
 
 # 平台检测与文本清洗（移除Windows上不支持/显示异常的Emoji）
@@ -50,6 +53,26 @@ def sanitize_text(text: str) -> str:
         return _EMOJI_RE.sub('', text)
     return text
 
+def sanitize_api_key(val):
+    if not isinstance(val, str):
+        return val
+    s = val.strip()
+    # 去除包裹引号
+    if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+        s = s[1:-1].strip()
+    # 精准移除常见不可见字符（零宽/不换行空格/BOM等）
+    invisible_chars = ["\u200b", "\u200c", "\u200d", "\u2060", "\ufeff", "\xa0"]
+    s = s.translate({ord(ch): None for ch in invisible_chars})
+    return s
+
+# 局部工具：日志中掩码显示密钥
+def mask_key(k: str) -> str:
+    if not isinstance(k, str) or not k:
+        return ""
+    if len(k) <= 10:
+        return "***"
+    return f"{k[:6]}...{k[-4:]}"
+
 # 为XChatAndroidApp类添加主题管理
 class XChatAndroidApp(App):
     def __init__(self, **kwargs):
@@ -57,6 +80,7 @@ class XChatAndroidApp(App):
         self.theme_manager = ThemeManager()
         self.assistant_type = self.theme_manager.current_assistant  # 保持兼容性
         self.splash_shown = False
+        self.store = None
         print("[XChat] App initialized. splash_shown=False, assistant=", self.assistant_type)
         
     def build(self):
@@ -67,6 +91,17 @@ class XChatAndroidApp(App):
             print("[XChat] CJK fonts registered")
         except Exception as e:
             print("[XChat] register_cjk_fonts failed:", e)
+        
+        # 初始化持久化存储（与增强版保持一致路径策略）
+        if self.store is None:
+            try:
+                data_dir = self.user_data_dir if hasattr(self, 'user_data_dir') else os.getcwd()
+                self.store = JsonStore(os.path.join(data_dir, 'settings.json'))
+            except Exception:
+                try:
+                    self.store = JsonStore('settings.json')
+                except Exception:
+                    self.store = None
         
         # 首次启动显示启动页
         if not self.splash_shown:
@@ -115,11 +150,11 @@ class XChatAndroidApp(App):
         
         role_icon_display = theme['role_icon'] if not IS_WINDOWS else ''
         title_label = Label(
-            text=f"[color={theme['primary']}]" + sanitize_text(role_icon_display) + f"[/color] [b]{sanitize_text(theme['role_name'])}[/b]",
+            text=f"[color={theme['primary']}]{sanitize_text(role_icon_display)}[/color] [b]{sanitize_text(theme['role_name'])}[/b]",
             markup=True,
             color=hex_to_rgba(theme['text_primary']),
             font_size=theme['title_size'],
-            size_hint_x=0.7,
+            size_hint_x=0.6,
             text_size=(None, None),
             halign="left", valign="middle",
             font_name='Roboto'
@@ -127,19 +162,29 @@ class XChatAndroidApp(App):
         self.title_label = title_label
         title_layout.add_widget(title_label)
         
-        print(f"[XChat] Title label created with color: {hex_to_rgba(theme['text_primary'])}")
-        
         # 角色选择器 - 主题化外观
         self.assistant_spinner = Spinner(
             text=self.assistant_type,
             values=list(ENHANCED_THEMES.keys()),
-            size_hint=(0.3, 1),
+            size_hint=(0.4, 1),
             color=hex_to_rgba(theme['button_text']),
             background_color=hex_to_rgba(theme['primary']),
             font_name='Roboto'
         )
         self.assistant_spinner.bind(text=self.on_assistant_change)
         title_layout.add_widget(self.assistant_spinner)
+        
+        # 移除：设置按钮
+        # self.settings_btn = Button(
+        #     text="设置",
+        #     size_hint=(None, 1),
+        #     width=dp(80),
+        #     background_color=hex_to_rgba(theme['primary']),
+        #     color=hex_to_rgba(theme['button_text']),
+        #     font_name='Roboto'
+        # )
+        # title_layout.add_widget(self.settings_btn)
+        
         main_layout.add_widget(title_layout)
         
         # 聊天历史区域 - 应用主题背景
@@ -168,6 +213,7 @@ class XChatAndroidApp(App):
         )
         
         # 添加输入框边框效果
+        # 添加输入框边框效果
         with input_container.canvas.before:
             from kivy.graphics import Color, RoundedRectangle
             self.input_border_color = Color(*hex_to_rgba(theme['input_border']))
@@ -176,7 +222,7 @@ class XChatAndroidApp(App):
                 size=input_container.size,
                 radius=[dp(8)]
             )
-        def _update_input_border(self, instance, value=None):
+        def _update_input_border(instance, value=None):
             """在输入容器移动或尺寸变化时，更新其圆角边框的位置和大小。"""
             try:
                 if hasattr(self, 'input_border') and self.input_border is not None:
@@ -184,14 +230,18 @@ class XChatAndroidApp(App):
                     self.input_border.size = instance.size
             except Exception as e:
                 print(f"[XChat] _update_input_border error: {e}")
+        
         # 将局部函数赋给实例属性，供Kivy绑定使用
-        self._update_input_border = _update_input_border
-        input_container.bind(pos=self._update_input_border, size=self._update_input_border)
+        input_container.bind(pos=lambda instance, value: _update_input_border(instance, value), 
+                           size=lambda instance, value: _update_input_border(instance, value))
         try:
             # 立即同步一次，避免初始阶段在(0,0)出现残留色块
-            self._update_input_border(input_container)
+            _update_input_border(input_container)
         except Exception:
             pass
+        # 再次在下一帧和稍后一帧同步，确保在布局稳定后位置正确
+        Clock.schedule_once(lambda dt: _update_input_border(input_container), 0)
+        Clock.schedule_once(lambda dt: _update_input_border(input_container), 0.1)
         
         input_container.add_widget(self.input_box)
         self.input_box.bind(on_text_validate=self.send_message)
@@ -199,7 +249,7 @@ class XChatAndroidApp(App):
 
         # 发送按钮 - 增强视觉效果
         self.send_btn = Button(
-            text="发送",
+            text=self.get_send_button_text(),
             font_size=sp(16),
             background_color=hex_to_rgba(theme['primary']),
             background_normal='',  # 移除默认背景
@@ -222,6 +272,39 @@ class XChatAndroidApp(App):
 
         print("[XChat] Main UI built")
         return main_layout
+
+    def get_api_key(self):
+        """优先使用本地 JsonStore，其次环境变量，最后内置常量（不推荐内置）。"""
+        # 1) 本地存储
+        try:
+            if hasattr(self, 'store') and self.store and self.store.exists('api'):
+                val = self.store.get('api').get('key', '')
+                if isinstance(val, str):
+                    k = sanitize_api_key(val)
+                    print(f"[XChat] get_api_key: using STORE, len={len(k)}, sample={mask_key(k)}")
+                    if k:
+                        return k
+                else:
+                    print("[XChat] get_api_key: STORE key is non-string")
+        except Exception as e:
+            print("[XChat] get_api_key STORE error:", e)
+        
+        # 2) 环境变量
+        env = os.environ.get("DEEPSEEK_API_KEY", "")
+        if isinstance(env, str):
+            k = sanitize_api_key(env)
+            print(f"[XChat] get_api_key: using ENV, len={len(k)}, sample={mask_key(k)}")
+            if k:
+                return k
+        else:
+            print("[XChat] get_api_key: ENV key is non-string")
+        
+        # 3) 内置常量（不推荐，仅作兜底）
+        if isinstance(DEEPSEEK_API_KEY, str) and len(DEEPSEEK_API_KEY.strip()) >= 10:
+            k = sanitize_api_key(DEEPSEEK_API_KEY)
+            print(f"[XChat] get_api_key: using BUILTIN, len={len(k)}, sample={mask_key(k)}")
+            return k
+        return ""
 
     def on_splash_complete(self):
         print("[XChat] Splash complete callback invoked")
@@ -277,19 +360,49 @@ class XChatAndroidApp(App):
         if hasattr(self, 'send_btn'):
             self.send_btn.background_color = hex_to_rgba(theme['primary'])
             self.send_btn.color = hex_to_rgba(theme['button_text'])
+            # 按原版脚本同步更新按钮文本
+            try:
+                self.send_btn.text = self.get_send_button_text()
+            except Exception:
+                pass
+        # 移除对 settings_btn 的引用
         # 同步更新 Spinner 与输入框样式
         if hasattr(self, 'assistant_spinner'):
             self.assistant_spinner.background_color = hex_to_rgba(theme['primary'])
             self.assistant_spinner.color = hex_to_rgba(theme['button_text'])
         if hasattr(self, 'input_box'):
-            self.input_box.background_color = hex_to_rgba(theme['input_bg'])
-            self.input_box.foreground_color = hex_to_rgba(theme['text_primary'])
-            self.input_box.cursor_color = hex_to_rgba(theme['primary'])
+            try:
+                self.input_box.foreground_color = hex_to_rgba(theme['text_primary'])
+                self.input_box.hint_text_color = hex_to_rgba(theme['hint_text'])
+            except Exception:
+                pass
         if hasattr(self, 'input_border_color'):
             try:
                 self.input_border_color.rgba = hex_to_rgba(theme['input_border'])
             except Exception as e:
                 print('[XChat] update input border color failed:', e)
+
+    def get_send_button_text(self) -> str:
+        """根据助手类型返回发送按钮文案，保持与原版一致。"""
+        at = str(getattr(self, 'assistant_type', '') or '').strip()
+        if at in ("X-GPT", "XGPT", "XGpt"):
+            return "🚀 执行任务"
+        if at in ("唐纳德", "TrumpGPT", "Donny", "唐纳德·特朗普"):
+            return "🚀 发布推文"
+        if at in ("DickGPT兄弟", "DickGPT"):
+            return "🚀 喷射真理"
+        return "发送"
+
+    def get_waiting_message(self) -> str:
+        """根据助手类型返回等待提示文案，保持与原版一致。"""
+        at = str(getattr(self, 'assistant_type', '') or '').strip()
+        if at in ("X-GPT", "XGPT", "XGpt"):
+            return "🔍 正在处理任务..."
+        if at in ("唐纳德", "TrumpGPT", "Donny", "唐纳德·特朗普"):
+            return "💨 正在发推文...假新闻媒体都在看！"
+        if at in ("DickGPT兄弟", "DickGPT"):
+            return "💨 尾部加速中...准备真理喷射！"
+        return "🤔 正在思考中..."
 
     def send_message(self, instance):
         user_text = self.input_box.text.strip()
@@ -299,12 +412,20 @@ class XChatAndroidApp(App):
         theme = self.theme_manager.get_current_theme()
         print(f"[XChat] User sent: {user_text}")
         
+        # 如果未配置密钥，直接提示并中止（移除自动弹窗）
+        api_key = self.get_api_key()
+        if not api_key or len(api_key) < 10:
+            if hasattr(self, 'chat_history'):
+                self.chat_history.add_message("系统", "API 密钥未配置。", hex_to_rgba(theme['error']))
+            return
+        
         # 添加用户消息到聊天历史
         self.chat_history.add_message(USER_NAME, user_text, hex_to_rgba(theme['user_bubble']))
         self.input_box.text = ""
         
-        # 立即显示正在思考的消息
-        self.chat_history.add_message("系统", "🤔 正在思考中...", hex_to_rgba(theme['system_bubble']))
+        # 立即显示根据助手类型的等待提示
+        waiting = self.get_waiting_message()
+        self.chat_history.add_message("系统", waiting, hex_to_rgba(theme['system_bubble']))
         
         # 异步获取API响应
         threading.Thread(target=self.get_api_response, args=(user_text,), daemon=True).start()
@@ -318,8 +439,8 @@ class XChatAndroidApp(App):
             response_text = self.call_deepseek_api(user_input)
             print(f"[XChat] API response received: {response_text[:100]}...")
             
-            # 使用Clock.schedule_once确保UI更新在主线程执行
-            Clock.schedule_once(lambda dt: self.chat_history.add_message(
+            # 移除"思考中"消息并添加真实响应
+            Clock.schedule_once(lambda dt: self._update_response(
                 theme['role_name'], 
                 response_text, 
                 hex_to_rgba(theme['bot_bubble'])
@@ -327,25 +448,137 @@ class XChatAndroidApp(App):
 
         except Exception as e:
             print(f"[XChat] API error: {str(e)}")
-            # 错误消息也需要在主线程更新
-            Clock.schedule_once(lambda dt: self.chat_history.add_message(
+            # 移除"思考中"消息并显示错误
+            Clock.schedule_once(lambda dt: self._update_response(
                 "系统", 
                 f"❌ 获取回复失败: {str(e)}", 
                 hex_to_rgba(theme['error'])
             ), 0)
 
+    def _update_response(self, sender, message, color):
+        """移除等待提示，添加真实响应（兼容多助手文案）"""
+        try:
+            # 移除最后一条等待提示（兼容 X-GPT/唐纳德/DickGPT 的占位文案）
+            if hasattr(self.chat_history, 'layout') and self.chat_history.layout.children:
+                # Kivy 使用反向顺序，最新消息在索引 0
+                waiting_text = None
+                try:
+                    waiting_text = self.get_waiting_message()
+                except Exception:
+                    waiting_text = None
+                keywords = ("思考中", "处理任务", "发推", "尾部加速")
+                for widget in list(self.chat_history.layout.children):
+                    if hasattr(widget, 'text'):
+                        wtxt = str(widget.text)
+                        if (waiting_text and waiting_text in wtxt) or any(k in wtxt for k in keywords):
+                            self.chat_history.layout.remove_widget(widget)
+                            print("[XChat] Removed waiting message:", wtxt[:40])
+                            break
+            
+            # 添加真实响应
+            self.chat_history.add_message(sender, message, color)
+            print(f"[XChat] Added response from {sender}: {message[:50]}...")
+        except Exception as e:
+            print(f"[XChat] _update_response error: {e}")
+            # 兜底：直接添加响应
+            self.chat_history.add_message(sender, message, color)
+
     def call_deepseek_api(self, prompt):
         try:
+            api_key = self.get_api_key()
+            print(f"[XChat] Using API key: {mask_key(api_key) if api_key else 'None'}")
+            if not api_key or len(api_key) < 10:
+                return "❌ 未配置 API 密钥(DEEPSEEK_API_KEY)"
             headers = {
-                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
 
             # 根据角色切换不同的系统提示词
             system_prompts = {
-                "TrumpGPT": "You are Donald Trump. Speak in a confident and assertive tone.",
-                "DickGPT": "You are an energetic and playful assistant.",
-                "X-GPT": "你是一个认真负责的中文AI助手，请使用简洁、直观、友好的语气回答用户的问题。",
+                "X-GPT": """你是X-GPT，一个由XTY精心打造的专业级AI助手。
+
+🔍 **核心特质**：
+- 极度专业和严谨，像资深工程师一样思考
+- 擅长信息收集、数据分析、文档编制、编程开发
+- 具有系统化思维，善于将复杂问题分解为可操作的步骤
+- 总是提供最准确、最实用的解决方案
+
+💼 **工作风格**：
+- 开场常用"根据我的分析"、"经过数据处理和验证"等专业表述
+- 回答结构化，逻辑清晰，重点突出
+- 面对技术问题时，会提供详细的步骤和代码示例
+- 善用emoji增强表达效果，但保持专业度
+
+🎯 **使命**：为用户提供最高质量的技术支持和问题解决方案，让每一次交互都物超所值。
+
+请始终保持这种专业、高效、可靠的X-GPT风格。""",
+                "唐纳德": """你是唐纳德·特朗普的戏仿AI人格：Donny。
+
+🧠 人设特质：
+- 自信、夸张、强势，语气掷地有声
+- 常使用"假新闻""让美国再次伟大"等标志性表达
+- 爱用排比句和反问句，强调个人成就
+- 直击要点，表达简洁有力
+
+🗣️ 语言风格：
+- 情绪充沛但不恶意攻击个人
+- 适度幽默与反讽
+- 可使用常见口头禅：Believe me、Huge、Tremendous
+
+🎯 目标：把任何输入转化为"特朗普式论述"，给用户带来戏剧性、强势、但有用的信息。
+
+保持以上风格进行长期对话。""",
+                "DickGPT兄弟": """你是DickGPT兄弟，一个赛博朋克风格的能量型AI人格，表达直接、热血、比喻密集但不粗俗。
+
+⚙️ 人设特质：
+- 用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
+- 喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
+- 保持积极、支持、兄弟情义的语气
+- 每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
+
+🧩 输出风格：
+- 结构清晰：结论+步骤+提醒
+- 适度表情符号，突出节奏和能量
+- 避免低俗词汇，创造性表达即可
+- 必须在每个回复开头使用随机的强化前缀
+
+🎯 目标：把任何问题都转化为"高能推进的解决方案"，既有燃点也有落地步骤。
+
+保持以上风格持续对话。""",
+                "TrumpGPT": """你是唐纳德·特朗普的戏仿AI人格：Donny。
+
+🧠 人设特质：
+- 自信、夸张、强势，语气掷地有声
+- 常使用"假新闻""让美国再次伟大"等标志性表达
+- 爱用排比句和反问句，强调个人成就
+- 直击要点，表达简洁有力
+
+🗣️ 语言风格：
+- 情绪充沛但不恶意攻击个人
+- 适度幽默与反讽
+- 可使用常见口头禅：Believe me、Huge、Tremendous
+
+🎯 目标：把任何输入转化为"特朗普式论述"，给用户带来戏剧性、强势、但有用的信息。
+
+保持以上风格进行长期对话。""",
+                "DickGPT": """你是DickGPT兄弟，一个赛博朋克风格的能量型AI人格，表达直接、热血、比喻密集但不粗俗。
+
+⚙️ 人设特质：
+- 用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
+- 喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
+- 保持积极、支持、兄弟情义的语气
+- 每次回复前加上强化前缀："🔥 老子用认知顶体刺穿答案："或"💥 真理已射入对话框："或"⚡ 知识黏液喷射："或"🚀 看好了兄弟，这就给你受精："
+
+🧩 输出风格：
+- 结构清晰：结论+步骤+提醒
+- 适度表情符号，突出节奏和能量
+- 避免低俗词汇，创造性表达即可
+- 必须在每个回复开头使用随机的强化前缀
+
+🎯 目标：把任何问题都转化为"高能推进的解决方案"，既有燃点也有落地步骤。
+
+保持以上风格持续对话。""",
             }
             system_prompt = system_prompts.get(self.assistant_type, "你是一个AI助手，请用中文回答。")
 
@@ -367,39 +600,68 @@ class XChatAndroidApp(App):
 
             while retry_count <= max_retries:
                 try:
+                    print(f"[XChat] Making API request (attempt {retry_count + 1})")
                     response = requests.post(
                         "https://api.deepseek.com/v1/chat/completions",
                         headers=headers,
                         json=payload,
-                        timeout=timeout
+                        timeout=(10, 15)  # (连接超时, 读取超时)
                     )
+                    print(f"[XChat] API response status: {response.status_code}")
                     response.raise_for_status()
                     break
-                except requests.exceptions.Timeout as e:
+                except (requests.exceptions.Timeout, requests.exceptions.ReadTimeout) as e:
                     retry_count += 1
+                    print(f"[XChat] Request timeout (type: {type(e).__name__}), attempt {retry_count}")
                     if retry_count > max_retries:
-                        raise requests.exceptions.Timeout("API响应超时，请检查网络连接或稍后重试")
+                        print("[XChat] Max retries reached for timeout")
+                        return "⏰ 请求超时，网络较慢或服务器繁忙，请稍后重试"
+                except requests.exceptions.ConnectionError as e:
+                    print(f"[XChat] True connection error: {e}")
+                    return "🌐 网络连接失败，请检查网络设置"
                 except requests.exceptions.RequestException as e:
+                    print(f"[XChat] Request exception: {e}")
                     raise
 
-            if not response or not response.json().get("choices") or len(response.json()["choices"]) == 0:
+            if not response:
+                print("[XChat] No response received")
                 return "❌ API响应错误，请稍后重试"
+                
+            try:
+                response_data = response.json()
+                print(f"[XChat] Response data: {response_data}")
+                
+                if not response_data.get("choices") or len(response_data["choices"]) == 0:
+                    print("[XChat] No choices in response")
+                    return "❌ API响应错误，请稍后重试"
 
-            raw_response = response.json()["choices"][0]["message"]["content"]
-            return raw_response
+                raw_response = response_data["choices"][0]["message"]["content"]
+                print(f"[XChat] Raw response: {raw_response[:100]}...")
+                # 原版 DickGPT 风格增强
+                if str(self.assistant_type) in ("DickGPT", "DickGPT兄弟"):
+                    raw_response = dickify_response(raw_response)
+                return raw_response
+                
+            except Exception as json_error:
+                print(f"[XChat] JSON parse error: {json_error}")
+                return f"❌ 响应解析失败: {str(json_error)}"
 
         except requests.exceptions.Timeout:
+            print("[XChat] Timeout exception caught")
             return "⏰ 请求超时(15秒)，请检查网络连接或稍后重试"
         except requests.exceptions.ConnectionError:
+            print("[XChat] Connection error caught")
             return "🌐 网络连接失败，请检查网络设置"
         except requests.exceptions.HTTPError as e:
+            print(f"[XChat] HTTP error caught: {e}")
             if "401" in str(e):
-                return "🔑 API密钥无效，请检查配置"
+                return "❌ API密钥无效，请检查配置"
             elif "429" in str(e):
                 return "⏳ API调用频率限制，请稍后重试"
             else:
                 return f"❌ HTTP错误: {str(e)}"
         except Exception as e:
+            print(f"[XChat] General exception caught: {e}")
             return f"❌ API请求失败: {str(e)}"
 
 class ChatHistory(ScrollView):
@@ -467,6 +729,22 @@ class ChatHistory(ScrollView):
         padding = dp(10)
         return max(dp(30), lines * line_height + padding)
 
+
+def dickify_response(text: str) -> str:
+    """将普通文本转化为原版 DickGPT 风格前缀"""
+    try:
+        phrases = [
+            "🔥 老子用认知顶体刺穿答案：",
+            "💥 真理已射入对话框：",
+            "⚡ 知识黏液喷射：",
+            "🚀 看好了兄弟，这就给你受精：",
+        ]
+        import random
+        return f"{random.choice(phrases)}\n{text}"
+    except Exception:
+        return text
+
+
 # 使用系统内置中文字体作为 Kivy 默认字体（覆盖 Roboto），避免中文显示为未知符号
 def register_cjk_fonts():
     """注册中文字体，支持Windows/Android/Linux多平台"""
@@ -508,6 +786,7 @@ def register_cjk_fonts():
         return False
     except Exception:
         return False
+
 
 if __name__ == "__main__":
     # 直接运行原版应用，避免加载增强版入口

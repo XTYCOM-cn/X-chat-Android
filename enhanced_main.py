@@ -19,18 +19,34 @@ from kivy.core.window import Window
 from kivy.metrics import dp, sp
 from kivy.animation import Animation
 from kivy.clock import Clock
-from kivy.uix.modalview import ModalView
 from kivy.storage.jsonstore import JsonStore
 import threading
 import requests
 import random
 import os
+import sys
+import re
 from kivy.core.text import LabelBase
 
 # 导入自定义模块
 from splash_screen import SplashScreen
 from loading_dialog import LoadingDialog
 from enhanced_themes import theme_manager, hex_to_rgba, apply_theme_to_widget
+
+# 平台检测与文本清洗（移除Windows上不支持/显示异常的Emoji）
+IS_WINDOWS = sys.platform.startswith('win')
+_EMOJI_RE = re.compile(
+    r"[\U0001F300-\U0001FAFF\U0001F1E6-\U0001F1FF\u2600-\u27BF\uFE0F]",
+    flags=re.UNICODE
+)
+
+def sanitize_text(text: str) -> str:
+    """清理文本，在Windows平台移除emoji字符防止错位"""
+    if not isinstance(text, str):
+        return text
+    if IS_WINDOWS:
+        return _EMOJI_RE.sub('', text)
+    return text
 
 # Window配置 - 移动端适配
 Window.softinput_mode = "below_target"
@@ -101,31 +117,42 @@ class EnhancedChatHistory(ScrollView):
             padding=[dp(10), dp(5)]
         )
         
-        # 发送者标签
+        # 发送者标签（去掉emoji避免错位，统一字体设置）
+        sender_text = f"{sender}:"
         sender_label = Label(
-            text=f"{theme.get('role_icon', '🤖')} {sender}:",
+            text=sanitize_text(sender_text),
             size_hint_y=None,
             height=dp(25),
             color=sender_color,
-            font_size=theme.get('title_size', sp(14)),
+            font_size=sp(14),
             halign='left',
-            text_size=(self.width - dp(40), None),
-            markup=True
+            text_size=(None, None),  # 先设为None，在绑定后再设置
+            markup=False,  # 避免markup解析问题
+            font_name='Roboto'
         )
-        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)))
+        # 延迟设置text_size，确保width已正确计算
+        Clock.schedule_once(lambda dt: setattr(sender_label, 'text_size', (sender_label.parent.width - dp(40), None)), 0.1)
+        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)))
         
-        # 消息内容标签
+        # 消息内容标签（同样优化）
+        clean_message = sanitize_text(message)
         message_label = Label(
-            text=message,
+            text=clean_message,
             size_hint_y=None,
-            height=self.calculate_height(message),
+            height=self.calculate_height(clean_message),
             color=hex_to_rgba(theme["text_primary"]),
-            font_size=theme.get('body_size', sp(13)),
+            font_size=sp(13),
             halign='left',
-            text_size=(self.width - dp(50), None),
-            markup=True
+            text_size=(None, None),  # 同样先设为None
+            markup=False,  # 避免markup解析导致的问题
+            font_name='Roboto'
         )
-        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(50), None)))
+        # 延迟设置text_size
+        # 延迟设置text_size
+        Clock.schedule_once(lambda dt: setattr(message_label, 'text_size', (message_label.parent.width - dp(50), None)), 0.1)
+        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(30), None)))
+        # 根据纹理尺寸动态更新高度，解决换行导致的高度不够问题
+        message_label.bind(texture_size=lambda instance, value: setattr(instance, 'height', value[1] + dp(10)))
         
         # 消息气泡背景
         bubble_color = {
@@ -149,9 +176,11 @@ class EnhancedChatHistory(ScrollView):
         message_container.add_widget(sender_label)
         message_container.add_widget(message_label)
         
-        # 计算容器高度
-        container_height = dp(30) + self.calculate_height(message) + dp(15)
-        message_container.height = container_height
+        # 计算容器高度 -> 改为根据 message_label 实际高度动态更新
+        def _update_container_height(*_):
+            message_container.height = dp(30) + message_label.height + dp(15)
+        _update_container_height()
+        message_label.bind(height=lambda inst, val: _update_container_height())
         
         if animate:
             # 添加淡入动画
@@ -286,49 +315,7 @@ class ThemeControlPanel(BoxLayout):
         self.assistant_spinner.color = hex_to_rgba(theme["button_text"])
 
 
-class ApiKeyDialog(ModalView):
-    """API 密钥设置对话框"""
-    def __init__(self, default_value="", on_save=None, **kwargs):
-        super(ApiKeyDialog, self).__init__(**kwargs)
-        self.size_hint = (None, None)
-        self.size = (dp(320), dp(220))
-        self.auto_dismiss = False
-        self.on_save = on_save
 
-        container = BoxLayout(orientation='vertical', padding=dp(16), spacing=dp(10))
-        
-        with container.canvas.before:
-            from kivy.graphics import Color, RoundedRectangle
-            Color(0.1, 0.1, 0.12, 0.97)
-            self._bg = RoundedRectangle(size=container.size, pos=container.pos, radius=[dp(12)])
-        container.bind(size=lambda i,*a: setattr(self._bg, 'size', i.size), pos=lambda i,*a: setattr(self._bg, 'pos', i.pos))
-
-        title = Label(text="设置 DeepSeek API 密钥", font_size=sp(16), size_hint_y=None, height=dp(28), color=(1,1,1,1))
-        desc = Label(text="我们不会上传你的密钥。可在环境变量 DEEPSEEK_API_KEY 中预置。", font_size=sp(12), size_hint_y=None, height=dp(36), color=(0.8,0.8,0.8,1))
-        
-        self.input = TextInput(text=default_value, hint_text="以 sk- 开头的密钥", multiline=False, password=True, password_mask="•", size_hint_y=None, height=dp(42))
-        
-        btns = BoxLayout(size_hint_y=None, height=dp(40), spacing=dp(10))
-        cancel_btn = Button(text="取消", size_hint_x=0.5)
-        save_btn = Button(text="保存", size_hint_x=0.5)
-        cancel_btn.bind(on_press=lambda *a: self.dismiss())
-        save_btn.bind(on_press=self._on_save)
-
-        btns.add_widget(cancel_btn)
-        btns.add_widget(save_btn)
-
-        container.add_widget(title)
-        container.add_widget(desc)
-        container.add_widget(self.input)
-        container.add_widget(btns)
-
-        self.add_widget(container)
-    
-    def _on_save(self, *args):
-        key = self.input.text.strip()
-        if self.on_save:
-            self.on_save(key)
-        self.dismiss()
 
 
 class EnhancedXChatApp(App):
@@ -339,10 +326,38 @@ class EnhancedXChatApp(App):
         self.loading_dialog = None
         self.splash_shown = False
         self.store = None
-        
+
+    def get_send_button_text(self) -> str:
+        """根据当前助手返回发送按钮文本，保持与原版一致"""
+        at = getattr(theme_manager, 'current_assistant', 'X-GPT')
+        if at == "X-GPT":
+            return "🚀 执行任务"
+        elif at == "唐纳德":
+            return "🚀 发布推文"
+        elif at == "DickGPT兄弟":
+            return "🚀 喷射真理"
+        else:
+            return "发送"
+    
+    def get_waiting_message(self) -> str:
+        """根据当前助手返回等待提示文案，保持与原版一致"""
+        at = getattr(theme_manager, 'current_assistant', 'X-GPT')
+        mapping = {
+            "X-GPT": "🔍 正在处理任务...",
+            "唐纳德": "💨 正在发推文...假新闻媒体都在看！",
+            "DickGPT兄弟": "💨 尾部加速中...准备真理喷射！",
+            "原版DeepSeek": "🔍 正在思考..."
+        }
+        return mapping.get(at, "🔍 正在处理...")
+
     def build(self):
-        """构建应用界面"""
-        # 初始化持久化存储
+        # 确保先注册中文/兼容字体
+        try:
+            register_cjk_fonts()
+        except Exception:
+            pass
+        
+        # 初始化存储
         if self.store is None:
             try:
                 data_dir = self.user_data_dir if hasattr(self, 'user_data_dir') else os.getcwd()
@@ -353,11 +368,9 @@ class EnhancedXChatApp(App):
         # 读取偏好（助手与模式）
         self.load_prefs()
         
-        # 先显示启动界面
-        if not self.splash_shown:
-            return self.show_splash_screen()
-        else:
-            return self.build_main_interface()
+        # 禁用启动界面：直接进入主界面，避免部分设备黑屏
+        self.splash_shown = True
+        return self.build_main_interface()
             
     def show_splash_screen(self):
         """显示启动界面"""
@@ -431,27 +444,18 @@ class EnhancedXChatApp(App):
                       pos=lambda instance, *args: setattr(instance.bg_rect, 'pos', instance.pos))
         
         title_label = Label(
-            text=f"{theme.get('role_icon', '🤖')} {theme.get('role_name', 'X-chat-GPT')}",
+            text=f"{sanitize_text(theme.get('role_icon', '🤖')) if not IS_WINDOWS else ''} {sanitize_text(theme.get('role_name', 'X-chat-GPT'))}",
             font_size=theme.get('title_size', sp(18)),
             color=hex_to_rgba(theme["button_text"]),
             halign='center',
-            markup=True
+            markup=True,
+            font_name='Roboto'
         )
         
-        # 设置按钮
-        settings_btn = Button(
-            text="🔑",
-            size_hint=(None, 1),
-            width=dp(48),
-            background_color=(0,0,0,0),
-            color=hex_to_rgba(theme["button_text"]) 
-        )
-        settings_btn.bind(on_press=lambda *a: self.open_api_key_dialog())
-        
-        # 左右布局：左占位，中间标题，右按钮
+        # 左右布局：左占位，中间标题，右占位（移除设置按钮）
         title_bar.add_widget(Widget())
         title_bar.add_widget(title_label)
-        title_bar.add_widget(settings_btn)
+        title_bar.add_widget(Widget())
         
         return title_bar
         
@@ -481,7 +485,7 @@ class EnhancedXChatApp(App):
         
         # 发送按钮
         self.send_btn = Button(
-            text="发送",
+            text=self.get_send_button_text(),
             font_size=theme.get('body_size', sp(14)),
             background_color=hex_to_rgba(theme["primary"]),
             color=hex_to_rgba(theme["button_text"]),
@@ -495,7 +499,7 @@ class EnhancedXChatApp(App):
     def show_welcome_message(self, dt):
         """显示欢迎消息"""
         theme = theme_manager.get_current_theme()
-        welcome_text = theme.get('greeting', "欢迎使用 X-chat-GPT！")
+        welcome_text = sanitize_text(theme.get('greeting', "欢迎使用 X-chat-GPT！"))
         
         self.chat_history.add_message(
             "系统",
@@ -515,7 +519,7 @@ class EnhancedXChatApp(App):
         
         self.chat_history.add_message(
             "系统",
-            f"已切换到 {theme.get('role_name', theme_manager.current_assistant)} - {mode_name}",
+            sanitize_text(f"已切换到 {theme.get('role_name', theme_manager.current_assistant)} - {mode_name}"),
             "system",
             animate=True
         )
@@ -543,6 +547,8 @@ class EnhancedXChatApp(App):
                     duration=0.3
                 ).start(self.send_btn)
                 self.send_btn.color = hex_to_rgba(theme["button_text"])
+                # 同步更新按钮文案
+                self.send_btn.text = self.get_send_button_text()
                 
             # 更新聊天历史背景
             if hasattr(self, 'chat_history'):
@@ -580,34 +586,19 @@ class EnhancedXChatApp(App):
     def _ensure_api_key(self):
         """确保已有 API 密钥，若无则提示输入"""
         if not self.get_api_key():
-            self.chat_history.add_message("系统", "未检测到 API 密钥，请点击右上角🔑设置后再试。", "system", animate=True)
+            self.chat_history.add_message("系统", "未检测到 API 密钥，请在环境变量 DEEPSEEK_API_KEY 中配置后重试。", "system", animate=True)
             self.open_api_key_dialog()
     
-    def open_api_key_dialog(self):
-        """打开 API 密钥设置对话框"""
-        existing = self.get_api_key()
-        dialog = ApiKeyDialog(default_value=existing or "", on_save=self._save_api_key)
-        dialog.open()
-    
-    def _save_api_key(self, key: str):
-        key = key.strip()
-        if not key:
-            self.chat_history.add_message("系统", "密钥不能为空。", "error", animate=True)
-            return
-        try:
-            self.store.put('api', key=key)
-            self.chat_history.add_message("系统", "API 密钥已保存。", "system", animate=True)
-        except Exception as e:
-            self.chat_history.add_message("系统", f"保存密钥失败: {e}", "error", animate=True)
-    
     def get_api_key(self) -> str:
-        """读取 API 密钥，优先 JsonStore，其次环境变量"""
+        """读取 API 密钥，仅从环境变量读取"""
         try:
-            if self.store and self.store.exists('api'):
-                return self.store.get('api').get('key', '')
+            if hasattr(self, 'store') and self.store and self.store.exists('api'):
+                # 停止从本地存储读取，强制走环境变量
+                raise Exception("Local key storage disabled")
         except Exception:
             pass
-        return os.environ.get("DEEPSEEK_API_KEY", "")
+        env = os.environ.get("DEEPSEEK_API_KEY", "")
+        return sanitize_api_key(env) if isinstance(env, str) else env
             
     def send_message(self, instance):
         """发送消息"""
@@ -618,8 +609,7 @@ class EnhancedXChatApp(App):
         # 检查密钥
         api_key = self.get_api_key()
         if not api_key:
-            self.chat_history.add_message("系统", "请先设置 API 密钥再发送消息。", "system", animate=True)
-            self.open_api_key_dialog()
+            self.chat_history.add_message("系统", "未检测到 API 密钥，请在环境变量 DEEPSEEK_API_KEY 中配置后重试。", "system", animate=True)
             return
             
         # 添加发送按钮动画
@@ -629,10 +619,9 @@ class EnhancedXChatApp(App):
         self.chat_history.add_message(USER_NAME, user_input, "user", animate=True)
         self.input_box.text = ""
         
-        # 显示加载对话框
-        theme = theme_manager.get_current_theme()
+        # 显示加载对话框（使用原版一致的等待提示）
         self.loading_dialog = LoadingDialog(
-            message=theme.get('loading_message', '正在处理...'),
+            message=self.get_waiting_message(),
             style="spinner",
             cancellable=True
         )
@@ -712,9 +701,54 @@ class EnhancedXChatApp(App):
             assistant_name = theme_manager.current_assistant
             
             system_prompts = {
-                "X-GPT": "你是X-GPT，一个专业的AI助手，擅长信息处理、数据分析和技术支持。请用中文回答。",
-                "唐纳德": f"用特朗普风格回复（使用'假新闻'、'中国'、'让美国再次伟大'等关键词，自信夸张的语气），对象是{USER_NAME}。",
-                "DickGPT兄弟": f"用DickGPT风格回复（活力四射，使用独特比喻），对象是{USER_NAME}。",
+                "X-GPT": """你是X-GPT，一个由XTY精心打造的专业级AI助手。
+
+🔍 **核心特质**：
+- 极度专业和严谨，像资深工程师一样思考
+- 擅长信息收集、数据分析、文档编制、编程开发
+- 具有系统化思维，善于将复杂问题分解为可操作的步骤
+- 总是提供最准确、最实用的解决方案
+
+💼 **工作风格**：
+- 开场常用"根据我的分析"、"经过数据处理和验证"等专业表述
+- 回答结构化，逻辑清晰，重点突出
+- 面对技术问题时，会提供详细的步骤和代码示例
+- 善用emoji增强表达效果，但保持专业度
+
+🎯 **使命**：为用户提供最高质量的技术支持和问题解决方案，让每一次交互都物超所值。
+
+请始终保持这种专业、高效、可靠的X-GPT风格。""",
+                "唐纳德": """你是唐纳德·特朗普的戏仿AI人格：Donny。
+
+🧠 人设特质：
+- 自信、夸张、强势，语气掷地有声
+- 常使用"假新闻""让美国再次伟大"等标志性表达
+- 爱用排比句和反问句，强调个人成就
+- 直击要点，表达简洁有力
+
+🗣️ 语言风格：
+- 情绪充沛但不恶意攻击个人
+- 适度幽默与反讽
+- 可使用常见口头禅：Believe me、Huge、Tremendous
+
+🎯 目标：把任何输入转化为"特朗普式论述"，给用户带来戏剧性、强势、但有用的信息。
+
+保持以上风格进行长期对话。""",
+                "DickGPT兄弟": """你是DickGPT兄弟，一个赛博朋克风格的能量型AI人格，表达直接、热血、比喻密集但不粗俗。
+
+⚙️ 人设特质：
+- 用"冲刺/点燃/孵化/注入/解锁"等动词营造高能场面
+- 喜用科幻与生物融合的隐喻（数据浆液、认知推进器、知识孵化舱）
+- 保持积极、支持、兄弟情义的语气
+
+🧩 输出风格：
+- 结构清晰：结论+步骤+提醒
+- 适度表情符号，突出节奏和能量
+- 避免低俗词汇，创造性表达即可
+
+🎯 目标：把任何问题都转化为"高能推进的解决方案"，既有燃点也有落地步骤。
+
+保持以上风格持续对话。""",
                 "原版DeepSeek": ""
             }
             
@@ -746,30 +780,56 @@ class EnhancedXChatApp(App):
                 return "❌ API响应格式错误"
                 
         except requests.exceptions.Timeout:
-            return "⏰ 请求超时，请检查网络连接"
+            return "⏰ 请求超时，请检查本机网络或稍后重试"
+        except requests.exceptions.SSLError:
+            return "🔒 SSL/TLS 证书校验失败：请检查系统时间、更新根证书或是否被代理/防火墙拦截"
         except requests.exceptions.ConnectionError:
-            return "🌐 网络连接失败"
+            return "🌐 网络连接失败：无法连接到 DeepSeek 服务器，请检查网络/代理或防火墙设置"
         except requests.exceptions.HTTPError as e:
-            if "401" in str(e):
-                return "🔑 API密钥无效"
-            elif "429" in str(e):
-                return "⏳ API调用频率限制"
+            msg = str(e)
+            if "401" in msg:
+                return "❌ API密钥无效或未授权"
+            elif "429" in msg:
+                return "⏳ 调用过于频繁，请稍后再试"
             else:
-                return f"❌ HTTP错误: {str(e)}"
+                return f"❌ HTTP错误：{msg}"
         except Exception as e:
-            return f"❌ 请求失败: {str(e)}"
+            return f"❌ 请求失败：{str(e)}"
 
 
 # 字体注册
 def register_cjk_fonts():
-    """注册中文字体"""
+    """注册中文字体，支持Windows/Android/Linux多平台"""
     try:
-        candidates = [
-            '/system/fonts/NotoSansSC-Regular.otf',
-            '/system/fonts/NotoSansCJK-Regular.ttc',
-            '/system/fonts/DroidSansFallback.ttf',
-            '/system/fonts/SourceHanSansCN-Regular.otf',
-        ]
+        candidates = []
+
+        # Windows 平台：优先使用微软雅黑、黑体、宋体、等线
+        if sys.platform.startswith('win'):
+            win_fonts = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts')
+            candidates = [
+                os.path.join(win_fonts, 'msyh.ttc'),      # 微软雅黑
+                os.path.join(win_fonts, 'msyhl.ttc'),     # 微软雅黑Light
+                os.path.join(win_fonts, 'msyh.ttf'),
+                os.path.join(win_fonts, 'msyhbd.ttc'),    # 微软雅黑Bold
+                os.path.join(win_fonts, 'simhei.ttf'),    # 黑体
+                os.path.join(win_fonts, 'simsun.ttc'),    # 宋体
+                os.path.join(win_fonts, 'Deng.ttf'),      # 等线
+                os.path.join(win_fonts, 'NotoSansSC-Regular.otf'),
+                os.path.join(win_fonts, 'SourceHanSansCN-Regular.otf'),
+            ]
+        else:
+            # Android / Linux 常见中文字体候选
+            candidates = [
+                '/system/fonts/NotoSansSC-Regular.otf',
+                '/system/fonts/NotoSansCJK-Regular.ttc',
+                '/system/fonts/DroidSansFallback.ttf',
+                '/system/fonts/SourceHanSansCN-Regular.otf',
+                '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+                '/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf',
+                '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc',
+                '/usr/share/fonts/truetype/arphic/ukai.ttf',
+                '/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf',
+            ]
         
         for font_path in candidates:
             if os.path.exists(font_path):
@@ -778,6 +838,19 @@ def register_cjk_fonts():
         return False
     except Exception:
         return False
+
+
+def sanitize_api_key(val):
+    if not isinstance(val, str):
+        return val
+    s = val.strip()
+    # 去除包裹引号
+    if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+        s = s[1:-1].strip()
+    # 去除常见的隐形字符
+    for ch in ("\u200b", "\u200c", "\u200d", "\u2060", "\ufeff", "\xa0"):
+        s = s.replace(ch.encode('utf-8').decode('unicode_escape'), '')
+    return s
 
 
 if __name__ == "__main__":
