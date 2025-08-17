@@ -96,6 +96,34 @@ class XChatAndroidApp(App):
         if self.store is None:
             try:
                 data_dir = self.user_data_dir if hasattr(self, 'user_data_dir') else os.getcwd()
+                store_path = os.path.join(data_dir, 'settings.json')
+                print(f"[XChat] Initializing JsonStore at: {store_path}")
+                self.store = JsonStore(store_path)
+                try:
+                    has_api = self.store.exists('api')
+                    sample = ''
+                    if has_api:
+                        kv = self.store.get('api').get('key', '')
+                        if isinstance(kv, str):
+                            sample = mask_key(sanitize_api_key(kv))
+                    print(f"[XChat] JsonStore ready. api.exists={has_api}, sample={sample}")
+                except Exception as e:
+                    print("[XChat] JsonStore post-init check failed:", e)
+            except Exception:
+                try:
+                    fallback_path = 'settings.json'
+                    print(f"[XChat] JsonStore fallback path: {fallback_path}")
+                    self.store = JsonStore(fallback_path)
+                    try:
+                        has_api = self.store.exists('api')
+                        print(f"[XChat] Fallback store api.exists={has_api}")
+                    except Exception as e:
+                        print("[XChat] Fallback store check failed:", e)
+                except Exception:
+                    self.store = None
+                    print("[XChat] JsonStore unavailable; continue without local settings")
+        except Exception:
+            try:
                 self.store = JsonStore(os.path.join(data_dir, 'settings.json'))
             except Exception:
                 try:
@@ -406,18 +434,29 @@ class XChatAndroidApp(App):
 
     def send_message(self, instance):
         user_text = self.input_box.text.strip()
+        print(f"[XChat] send_message called, input_text='{user_text}', len={len(user_text)}")
+        
         if not user_text:
+            print("[XChat] Empty input, ignoring send request")
             return
 
         theme = self.theme_manager.get_current_theme()
         print(f"[XChat] User sent: {user_text}")
         
-        # 如果未配置密钥，直接提示并中止（移除自动弹窗）
+        # 如果未配置密钥，详细检查和提示
         api_key = self.get_api_key()
+        print(f"[XChat] API key check: has_key={bool(api_key)}, len={len(api_key) if api_key else 0}")
+        
         if not api_key or len(api_key) < 10:
+            error_msg = "API 密钥未配置。请通过以下方式之一配置:\n" \
+                       "1. 设置环境变量 DEEPSEEK_API_KEY\n" \
+                       "2. 在 settings.json 中添加 {\"api\": {\"key\": \"your_key\"}}"
             if hasattr(self, 'chat_history'):
-                self.chat_history.add_message("系统", "API 密钥未配置。", hex_to_rgba(theme['error']))
+                self.chat_history.add_message("系统", error_msg, hex_to_rgba(theme['error']))
+            print("[XChat] API key validation failed, message not sent")
             return
+        
+        print("[XChat] API key validation passed, proceeding with message")
         
         # 添加用户消息到聊天历史
         self.chat_history.add_message(USER_NAME, user_text, hex_to_rgba(theme['user_bubble']))
