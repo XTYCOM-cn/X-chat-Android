@@ -15,7 +15,17 @@ import threading
 import requests
 import random
 import os
+import sys
+import re
 from kivy.core.text import LabelBase
+from kivy.uix.floatlayout import FloatLayout
+
+# 添加父目录到sys.path以导入根目录模块
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 添加增强主题管理器导入，支持角色主题化
+from enhanced_themes import ThemeManager, ENHANCED_THEMES, hex_to_rgba
+from splash_screen import SplashScreen  # 导入启动界面
 
 # Window配置 - 移动端适配
 Window.softinput_mode = "below_target"
@@ -23,271 +33,319 @@ Window.keyboard_anim_args = {'d': .2, 't': 'in_out_expo'}
 Window.keyboard_mode = 'managed'
 
 # 配置区
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "sk-24f56defebb149a9a7c356d39296af07")  # 优先从环境变量读取
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")  # 从环境变量读取，默认为空
 USER_NAME = "用户"
 
-# 主题配置 - 使用Android兼容字体
-THEMES = {
-    "X-GPT": {"primary": "#1e88e5", "secondary": "#64b5f6", "accent": "#0d47a1", "font": "Roboto"},
-    "唐纳德": {"primary": "#e65100", "secondary": "#ed8936", "accent": "#bf360c", "font": "Roboto"},
-    "DickGPT兄弟": {"primary": "#9c27b0", "secondary": "#ba68c8", "accent": "#6a0080", "font": "Roboto"},
-    "原版DeepSeek": {"primary": "#0288d1", "secondary": "#4fc3f7", "accent": "#01579b", "font": "Roboto"}
-}
+# 平台检测与文本清洗（移除Windows上不支持/显示异常的Emoji）
+IS_WINDOWS = sys.platform.startswith('win')
+_EMOJI_RE = re.compile(
+    r"[\U0001F300-\U0001FAFF\U0001F1E6-\U0001F1FF\u2600-\u27BF\uFE0F]",
+    flags=re.UNICODE
+)
 
-class ChatHistory(ScrollView):
-    def __init__(self, **kwargs):
-        super(ChatHistory, self).__init__(**kwargs)
-        self.layout = GridLayout(cols=1, size_hint_y=None, spacing=dp(5), padding=dp(10))
-        self.layout.bind(minimum_height=self.layout.setter('height'))
-        self.add_widget(self.layout)
+def sanitize_text(text: str) -> str:
+    if not isinstance(text, str):
+        return text
+    if IS_WINDOWS:
+        return _EMOJI_RE.sub('', text)
+    return text
 
-    def add_message(self, sender, message, color, animate=True):
-        # 添加发送者标签
-        sender_label = Label(
-            text=f"{sender}:",
-            size_hint_y=None,
-            height=dp(25),
-            color=color,
-            font_size=sp(14),
-            halign='left',
-            text_size=(self.width - dp(20), None)
-        )
-        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)))
-        
-        # 添加消息内容
-        message_label = Label(
-            text=message,
-            size_hint_y=None,
-            height=self.calculate_height(message),
-            color=(1, 1, 1, 1),
-            font_size=sp(12),
-            halign='left',
-            text_size=(self.width - dp(40), None),
-            markup=True
-        )
-        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)))
-        
-        if animate:
-            # 添加淡入动画
-            sender_label.opacity = 0
-            message_label.opacity = 0
-            
-        self.layout.add_widget(sender_label)
-        self.layout.add_widget(message_label)
-        
-        if animate:
-            # 执行淡入动画
-            Animation(opacity=1, duration=0.3).start(sender_label)
-            Animation(opacity=1, duration=0.3, t='out_expo').start(message_label)
-
-        # 延迟滚动到底部，确保动画完成后滚动
-        Clock.schedule_once(lambda dt: setattr(self, 'scroll_y', 0), 0.35 if animate else 0.1)
-
-    def calculate_height(self, text):
-        # 更精确的文本高度计算
-        lines = text.count('\n') + 1
-        line_height = sp(16)
-        padding = dp(10)
-        return max(dp(30), lines * line_height + padding)
-
+# 为XChatAndroidApp类添加主题管理
 class XChatAndroidApp(App):
     def __init__(self, **kwargs):
         super(XChatAndroidApp, self).__init__(**kwargs)
-        self.assistant_type = "X-GPT"
-
+        self.theme_manager = ThemeManager()
+        self.assistant_type = self.theme_manager.current_assistant  # 保持兼容性
+        self.splash_shown = False
+        print("[XChat] App initialized. splash_shown=False, assistant=", self.assistant_type)
+        
     def build(self):
-        # 主布局 - 使用dp单位
-        main_layout = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
-        main_layout.background_color = (0.1, 0.1, 0.1, 1)
+        print("[XChat] build() called. splash_shown=", self.splash_shown)
+        # 确保先注册中文字体（Windows/Android/Linux）
+        try:
+            register_cjk_fonts()
+            print("[XChat] CJK fonts registered")
+        except Exception as e:
+            print("[XChat] register_cjk_fonts failed:", e)
+        
+        # 首次启动显示启动页
+        if not self.splash_shown:
+            self.splash_shown = True
+            print("[XChat] Returning SplashScreen as root")
+            return SplashScreen(title=sanitize_text("X-chat-GPT"), subtitle=sanitize_text("智能对话助手"), on_complete=self.on_splash_complete)
+        
+        # 应用增强主题配色
+        theme = self.theme_manager.get_current_theme()
+        print(f"[XChat] Current theme keys: {list(theme.keys())}")
+        print(f"[XChat] Background color: {theme.get('background', 'NOT FOUND')}")
+        Window.clearcolor = hex_to_rgba(theme["background"])
+        print("[XChat] Building main UI with theme:", self.assistant_type, self.theme_manager.current_mode)
+        print(f"[XChat] Current window size: {Window.size}")
 
-        # 标题栏 - 使用dp和sp单位
-        title_bar = BoxLayout(size_hint_y=None, height=dp(50), padding=dp(10))
+        # 主布局
+        main_layout = BoxLayout(orientation="vertical", spacing=dp(8), padding=dp(10))
+        
+        # 主布局背景绘制
+        with main_layout.canvas.before:
+            from kivy.graphics import Color, Rectangle
+            bg_color = hex_to_rgba(theme["background"])
+            print(f"[XChat] Main layout bg color: {bg_color}")
+            self._bg_color_instr = Color(*bg_color)
+            self._bg_rect = Rectangle(pos=main_layout.pos, size=main_layout.size)
+        
+        # 绑定背景矩形跟随布局变化
+        def update_bg_rect(instance, value):
+            self._bg_rect.pos = instance.pos
+            self._bg_rect.size = instance.size
+        main_layout.bind(pos=update_bg_rect, size=update_bg_rect)
+        
+        # 窗口设置一个最小尺寸
+        try:
+            if hasattr(Window, 'minimum_width'):
+                Window.minimum_width = 640.0
+                Window.minimum_height = 480.0
+                print(f"[XChat] Set minimum window size: {Window.minimum_width}x{Window.minimum_height}")
+        except Exception as e:
+            print(f"[XChat] Failed to set minimum window size: {e}")
+        
+        # 标题栏 - 应用主题颜色
+        title_layout = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(60), spacing=dp(10))
+        
+        role_icon_display = theme['role_icon'] if not IS_WINDOWS else ''
         title_label = Label(
-            text="X-chat-GPT",
-            font_size=sp(20),
-            color=(1, 1, 1, 1),
-            halign='center'
+            text=f"[color={theme['primary']}]" + sanitize_text(role_icon_display) + f"[/color] [b]{sanitize_text(theme['role_name'])}[/b]",
+            markup=True,
+            color=hex_to_rgba(theme['text_primary']),
+            font_size=theme['title_size'],
+            size_hint_x=0.7,
+            text_size=(None, None),
+            halign="left", valign="middle",
+            font_name='Roboto'
         )
-        title_bar.add_widget(title_label)
-        title_bar.background_color = tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
-        main_layout.add_widget(title_bar)
-
-        # 助手选择器区域 - 使用dp和sp单位
-        selector_layout = BoxLayout(size_hint_y=None, height=dp(50), spacing=dp(10), padding=[dp(5), 0])
-        selector_label = Label(
-            text="选择回答者:",
-            size_hint_x=None,
-            width=dp(100),
-            color=(1, 1, 1, 1),
-            font_size=sp(14)
-        )
-        selector_layout.add_widget(selector_label)
-
+        self.title_label = title_label
+        title_layout.add_widget(title_label)
+        
+        print(f"[XChat] Title label created with color: {hex_to_rgba(theme['text_primary'])}")
+        
+        # 角色选择器 - 主题化外观
         self.assistant_spinner = Spinner(
             text=self.assistant_type,
-            values=list(THEMES.keys()),
-            size_hint_x=None,
-            width=dp(180),
-            background_normal='',
-            background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            color=(1, 1, 1, 1),
-            font_size=sp(14)
+            values=list(ENHANCED_THEMES.keys()),
+            size_hint=(0.3, 1),
+            color=hex_to_rgba(theme['button_text']),
+            background_color=hex_to_rgba(theme['primary']),
+            font_name='Roboto'
         )
         self.assistant_spinner.bind(text=self.on_assistant_change)
-        selector_layout.add_widget(self.assistant_spinner)
+        title_layout.add_widget(self.assistant_spinner)
+        main_layout.add_widget(title_layout)
         
-        # 添加一些弹性空间
-        selector_layout.add_widget(Label())
-        main_layout.add_widget(selector_layout)
-
-        # 聊天历史
-        self.chat_history = ChatHistory(size_hint_y=1)
+        # 聊天历史区域 - 应用主题背景
+        self.chat_history = ChatHistory()
         main_layout.add_widget(self.chat_history)
-
-        # 输入区域 - 使用dp和sp单位，优化移动端体验
-        input_layout = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(10), padding=[0, dp(5)])
+        print("[XChat] Chat history added")
+        
+        # 输入区域 - 使用主题化样式并增强视觉效果
+        input_layout = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(10))
+        
+        # 创建输入框容器以支持边框效果
+        input_container = BoxLayout(
+            size_hint_x=0.8,
+            padding=dp(2)
+        )
+        
         self.input_box = TextInput(
             hint_text="输入消息...",
             font_size=sp(16),
-            background_color=(0.2, 0.2, 0.2, 1),
-            foreground_color=(1, 1, 1, 1),
+            background_color=hex_to_rgba(theme['input_bg']),
+            foreground_color=hex_to_rgba(theme['text_primary']),
+            cursor_color=hex_to_rgba(theme['primary']),
             multiline=False,
-            size_hint_x=0.8,
-            padding=[dp(10), dp(10)]
+            padding=[dp(15), dp(15)],
+            font_name='Roboto'
         )
-        # 绑定回车键发送消息
+        
+        # 添加输入框边框效果
+        with input_container.canvas.before:
+            from kivy.graphics import Color, RoundedRectangle
+            self.input_border_color = Color(*hex_to_rgba(theme['input_border']))
+            self.input_border = RoundedRectangle(
+                pos=input_container.pos,
+                size=input_container.size,
+                radius=[dp(8)]
+            )
+        def _update_input_border(self, instance, value=None):
+            """在输入容器移动或尺寸变化时，更新其圆角边框的位置和大小。"""
+            try:
+                if hasattr(self, 'input_border') and self.input_border is not None:
+                    self.input_border.pos = instance.pos
+                    self.input_border.size = instance.size
+            except Exception as e:
+                print(f"[XChat] _update_input_border error: {e}")
+        # 将局部函数赋给实例属性，供Kivy绑定使用
+        self._update_input_border = _update_input_border
+        input_container.bind(pos=self._update_input_border, size=self._update_input_border)
+        try:
+            # 立即同步一次，避免初始阶段在(0,0)出现残留色块
+            self._update_input_border(input_container)
+        except Exception:
+            pass
+        
+        input_container.add_widget(self.input_box)
         self.input_box.bind(on_text_validate=self.send_message)
-        input_layout.add_widget(self.input_box)
+        input_layout.add_widget(input_container)
 
+        # 发送按钮 - 增强视觉效果
         self.send_btn = Button(
             text="发送",
             font_size=sp(16),
-            background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            color=(1, 1, 1, 1),
-            size_hint_x=0.2
+            background_color=hex_to_rgba(theme['primary']),
+            background_normal='',  # 移除默认背景
+            color=hex_to_rgba(theme['button_text']),
+            size_hint_x=0.2,
+            font_name='Roboto'
         )
         self.send_btn.bind(on_press=self.send_message)
         input_layout.add_widget(self.send_btn)
 
         main_layout.add_widget(input_layout)
 
-        # 初始消息
+        # 初始欢迎消息
         Clock.schedule_once(lambda dt: self.chat_history.add_message(
             "系统", 
-            "你好！欢迎使用X-chat-GPT。选择一个回答者，然后输入您的问题。", 
-            (0.6, 0.2, 0.8, 1), 
+            theme['greeting'], 
+            hex_to_rgba(theme['secondary']), 
             animate=True
         ), 0.5)
 
+        print("[XChat] Main UI built")
         return main_layout
 
+    def on_splash_complete(self):
+        print("[XChat] Splash complete callback invoked")
+        # 直接替换根部件，遵循Kivy推荐做法
+        try:
+            new_root = self.build()
+            self.root = new_root
+            print("[XChat] Root replaced with main UI")
+        except Exception as e:
+            print("[XChat] Failed to replace root:", e)
+            try:
+                # 兜底：尝试在现有root中清空后加入
+                if self.root:
+                    self.root.clear_widgets()
+                    self.root.add_widget(self.build())
+                    print("[XChat] Fallback: embedded new UI into existing root")
+            except Exception as e2:
+                print("[XChat] Fallback failed:", e2)
+        
+        # 在UI替换后，强制刷新一次画布，避免黑屏
+        try:
+            if self.root:
+                self.root.canvas.ask_update()
+                for child in self.root.walk():
+                    if hasattr(child, 'canvas'):
+                        child.canvas.ask_update()
+                print("[XChat] Canvases refreshed after root replacement")
+        except Exception as e:
+            print("[XChat] Canvas refresh error:", e)
+        
+        # 启动页完成后，切换到主界面（安全地替换根部件）
+        # [REMOVED obsolete _switch_root implementation]
+
     def on_assistant_change(self, spinner, text):
-        """处理助手选择变化 - 添加动画效果"""
-        self.assistant_type = text
+        self.assistant_type = text  # 与主题管理器同步
+        self.theme_manager.set_assistant(text)
+        theme = self.theme_manager.get_current_theme()
+        Window.clearcolor = hex_to_rgba(theme["background"])  # 更新窗口背景颜色
+        print("[XChat] Assistant changed to:", text)
         
-        # 更新UI主题颜色 - 添加颜色变化动画
-        primary_color = tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
+        # 更新根背景画布颜色
+        if hasattr(self, '_bg_color_instr'):
+            try:
+                self._bg_color_instr.rgba = hex_to_rgba(theme['background'])
+            except Exception as e:
+                print('[XChat] update bg color failed:', e)
         
-        # 按钮颜色变化动画
-        Animation(background_color=primary_color, duration=0.3, t='out_expo').start(self.assistant_spinner)
-        Animation(background_color=primary_color, duration=0.3, t='out_expo').start(self.send_btn)
-        
-        # 添加切换通知消息
-        assistant_names = {
-            "X-GPT": "X-GPT 专业助手",
-            "唐纳德": "特朗普风格助手",
-            "DickGPT兄弟": "DickGPT 兄弟",
-            "原版DeepSeek": "原版 DeepSeek"
-        }
-        
-        secondary_color = tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
-        Clock.schedule_once(lambda dt: self.chat_history.add_message(
-            "系统", 
-            f"已切换到 {assistant_names.get(text, text)}，准备为您服务！", 
-            secondary_color,
-            animate=True
-        ), 0.3)
-        
+        # 更新标题和按钮颜色
+        role_icon_display = theme['role_icon'] if not IS_WINDOWS else ''
+        self.title_label.text = f"[color={theme['primary']}]" + sanitize_text(role_icon_display) + f"[/color] [b]{sanitize_text(theme['role_name'])}[/b]"
+        self.title_label.color = hex_to_rgba(theme['text_primary'])
+        # 修复属性名错误：send_button -> send_btn
+        if hasattr(self, 'send_btn'):
+            self.send_btn.background_color = hex_to_rgba(theme['primary'])
+            self.send_btn.color = hex_to_rgba(theme['button_text'])
+        # 同步更新 Spinner 与输入框样式
+        if hasattr(self, 'assistant_spinner'):
+            self.assistant_spinner.background_color = hex_to_rgba(theme['primary'])
+            self.assistant_spinner.color = hex_to_rgba(theme['button_text'])
+        if hasattr(self, 'input_box'):
+            self.input_box.background_color = hex_to_rgba(theme['input_bg'])
+            self.input_box.foreground_color = hex_to_rgba(theme['text_primary'])
+            self.input_box.cursor_color = hex_to_rgba(theme['primary'])
+        if hasattr(self, 'input_border_color'):
+            try:
+                self.input_border_color.rgba = hex_to_rgba(theme['input_border'])
+            except Exception as e:
+                print('[XChat] update input border color failed:', e)
+
     def send_message(self, instance):
-        user_input = self.input_box.text.strip()
-        if not user_input:
+        user_text = self.input_box.text.strip()
+        if not user_text:
             return
 
-        # 添加发送按钮按压动画
-        original_size = self.send_btn.size
-        shrink_anim = Animation(size=(original_size[0] * 0.9, original_size[1] * 0.9), duration=0.1)
-        expand_anim = Animation(size=original_size, duration=0.1)
-        shrink_anim.bind(on_complete=lambda *args: expand_anim.start(self.send_btn))
-        shrink_anim.start(self.send_btn)
-
-        # 添加用户消息
-        self.chat_history.add_message(USER_NAME, user_input, (0.2, 0.8, 0.2, 1), animate=True)
-        self.input_box.text = ""
-
-        # 显示加载状态
-        loading_messages = {
-            "X-GPT": "🔍 正在处理任务...",
-            "唐纳德": "💨 正在发推文...假新闻媒体都在看！",
-            "DickGPT兄弟": "💨 尾部加速中...准备真理喷射！",
-            "原版DeepSeek": "🔍 正在思考..."
-        }
+        theme = self.theme_manager.get_current_theme()
+        print(f"[XChat] User sent: {user_text}")
         
-        Clock.schedule_once(lambda dt: self.chat_history.add_message(
-            self.assistant_type, 
-            loading_messages.get(self.assistant_type, "🔍 正在处理..."),
-            tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            animate=True
-        ), 0.2)
-
-        # 在单独的线程中调用API
-        threading.Thread(target=self.get_api_response, args=(user_input,), daemon=True).start()
+        # 添加用户消息到聊天历史
+        self.chat_history.add_message(USER_NAME, user_text, hex_to_rgba(theme['user_bubble']))
+        self.input_box.text = ""
+        
+        # 立即显示正在思考的消息
+        self.chat_history.add_message("系统", "🤔 正在思考中...", hex_to_rgba(theme['system_bubble']))
+        
+        # 异步获取API响应
+        threading.Thread(target=self.get_api_response, args=(user_text,), daemon=True).start()
 
     def get_api_response(self, user_input):
+        theme = self.theme_manager.get_current_theme()
         try:
-            response = self.call_deepseek_api(user_input)
+            print(f"[XChat] Getting API response for: {user_input}")
+            
+            # 调用API获取响应
+            response_text = self.call_deepseek_api(user_input)
+            print(f"[XChat] API response received: {response_text[:100]}...")
+            
+            # 使用Clock.schedule_once确保UI更新在主线程执行
             Clock.schedule_once(lambda dt: self.chat_history.add_message(
-                self.assistant_type, 
-                response,
-                tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-                animate=True
+                theme['role_name'], 
+                response_text, 
+                hex_to_rgba(theme['bot_bubble'])
             ), 0)
+
         except Exception as e:
-            error_messages = {
-                "X-GPT": f"❌ 任务处理失败: {str(e)}",
-                "唐纳德": f"💥 获取响应失败: 这肯定是假新闻媒体的错！{str(e)}",
-                "DickGPT兄弟": f"💥 获取响应失败: {str(e)}",
-                "原版DeepSeek": f"❌ 请求失败: {str(e)}"
-            }
+            print(f"[XChat] API error: {str(e)}")
+            # 错误消息也需要在主线程更新
             Clock.schedule_once(lambda dt: self.chat_history.add_message(
-                self.assistant_type, 
-                error_messages.get(self.assistant_type, f"❌ 任务处理失败: {str(e)}"),
-                (1, 0, 0, 1),
-                animate=True
+                "系统", 
+                f"❌ 获取回复失败: {str(e)}", 
+                hex_to_rgba(theme['error'])
             ), 0)
 
     def call_deepseek_api(self, prompt):
-        """调用DeepSeek API并返回响应"""
         try:
-            # API密钥校验
-            if not DEEPSEEK_API_KEY or len(DEEPSEEK_API_KEY) < 10:
-                return "❌ API密钥无效或未设置。请配置环境变量 DEEPSEEK_API_KEY 或检查配置。"
-            
             headers = {
                 "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
                 "Content-Type": "application/json"
             }
 
-            # 根据选择的助手类型设置不同的系统提示
-            if self.assistant_type == "X-GPT":
-                system_prompt = "你是x，一个由XTY创建的AI X-GPT，擅长信息收集、数据处理、文档编制、编程开发等任务。请使用中文作为工作语言，提供专业、准确的回答。"
-            elif self.assistant_type == "唐纳德":
-                system_prompt = f"用特朗普风格回复（使用'假新闻'、'中国'、'让美国再次伟大'等关键词，自信夸张的语气），对象是{USER_NAME}。"
-            elif self.assistant_type == "DickGPT兄弟":
-                system_prompt = f"用DickGPT风格回复（冲刺/受精/孵化等比喻），对象是{USER_NAME}。"
-            elif self.assistant_type == "原版DeepSeek":
-                system_prompt = ""  # 无任何预设，完全根据用户输入生成回复
-            else:
-                system_prompt = "你是一个AI助手，请使用中文回答用户的问题。"
+            # 根据角色切换不同的系统提示词
+            system_prompts = {
+                "TrumpGPT": "You are Donald Trump. Speak in a confident and assertive tone.",
+                "DickGPT": "You are an energetic and playful assistant.",
+                "X-GPT": "你是一个认真负责的中文AI助手，请使用简洁、直观、友好的语气回答用户的问题。",
+            }
+            system_prompt = system_prompts.get(self.assistant_type, "你是一个AI助手，请用中文回答。")
 
             payload = {
                 "model": "deepseek-chat",
@@ -342,28 +400,114 @@ class XChatAndroidApp(App):
         except Exception as e:
             return f"❌ API请求失败: {str(e)}"
 
-# 使用系统内置中文字体作为 Kivy 默认字体（覆盖 Roboto），避免中文显示为未知符号
-try:
-    def _register_cjk_font_fallback():
-        candidates = [
-            '/system/fonts/NotoSansSC-Regular.otf',
-            '/system/fonts/NotoSansCJK-Regular.ttc',
-            '/system/fonts/NotoSansSC-Regular.ttf',
-            '/system/fonts/DroidSansFallback.ttf',
-            '/system/fonts/SourceHanSansCN-Regular.otf',
-            '/system/fonts/SourceHanSansCN-Regular.ttf',
-        ]
-        for p in candidates:
-            if os.path.exists(p):
-                # 覆盖默认字体名称为 Roboto，使所有未显式指定 font_name 的 Label 使用该中文字体
-                LabelBase.register(name='Roboto', fn_regular=p)
-                return p
-        return None
+class ChatHistory(ScrollView):
+    def __init__(self, **kwargs):
+        super(ChatHistory, self).__init__(**kwargs)
+        self.layout = GridLayout(cols=1, size_hint_y=None, spacing=dp(5), padding=dp(10))
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        self.add_widget(self.layout)
 
-    _register_cjk_font_fallback()
-except Exception:
-    # 忽略字体注册失败，保持原样（可能仅影响中文显示）
-    pass
+    def add_message(self, sender, message, color, animate=True):
+        # 文本清洗，避免Windows下Emoji显示异常
+        sender = sanitize_text(str(sender))
+        message = sanitize_text(str(message))
+        
+        # 添加发送者标签 - 使用更明确的颜色对比
+        sender_label = Label(
+            text=f"● {sender}",
+            size_hint_y=None,
+            height=dp(25),
+            color=color,
+            font_size=sp(14),
+            halign='left',
+            text_size=(self.width - dp(20), None),
+            font_name='Roboto',
+            markup=True
+        )
+        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)))
+        
+        # 添加消息内容 - 增强对比度
+        message_color = (0.95, 0.95, 0.95, 1) if sender != "系统" else (0.8, 0.8, 0.8, 1)
+        
+        message_label = Label(
+            text=message,
+            size_hint_y=None,
+            height=self.calculate_height(message),
+            color=message_color,
+            font_size=sp(13),
+            halign='left',
+            text_size=(self.width - dp(40), None),
+            markup=True,
+            font_name='Roboto'
+        )
+        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)))
+        
+        if animate:
+            # 添加淡入动画
+            sender_label.opacity = 0
+            message_label.opacity = 0
+            
+        self.layout.add_widget(sender_label)
+        self.layout.add_widget(message_label)
+        
+        if animate:
+            # 执行淡入动画
+            Animation(opacity=1, duration=0.3).start(sender_label)
+            Animation(opacity=1, duration=0.3, t='out_expo').start(message_label)
+
+        # 延迟滚动到底部，确保动画完成后滚动
+        Clock.schedule_once(lambda dt: setattr(self, 'scroll_y', 0), 0.35 if animate else 0.1)
+
+    def calculate_height(self, text):
+        # 更精确的文本高度计算
+        lines = text.count('\n') + 1
+        line_height = sp(16)
+        padding = dp(10)
+        return max(dp(30), lines * line_height + padding)
+
+# 使用系统内置中文字体作为 Kivy 默认字体（覆盖 Roboto），避免中文显示为未知符号
+def register_cjk_fonts():
+    """注册中文字体，支持Windows/Android/Linux多平台"""
+    try:
+        candidates = []
+
+        # Windows 平台：优先使用微软雅黑、黑体、宋体、等线
+        if sys.platform.startswith('win'):
+            win_fonts = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts')
+            candidates = [
+                os.path.join(win_fonts, 'msyh.ttc'),      # 微软雅黑
+                os.path.join(win_fonts, 'msyhl.ttc'),     # 微软雅黑Light
+                os.path.join(win_fonts, 'msyh.ttf'),
+                os.path.join(win_fonts, 'msyhbd.ttc'),    # 微软雅黑Bold
+                os.path.join(win_fonts, 'simhei.ttf'),    # 黑体
+                os.path.join(win_fonts, 'simsun.ttc'),    # 宋体
+                os.path.join(win_fonts, 'Deng.ttf'),      # 等线
+                os.path.join(win_fonts, 'NotoSansSC-Regular.otf'),
+                os.path.join(win_fonts, 'SourceHanSansCN-Regular.otf'),
+            ]
+        else:
+            # Android / Linux 常见中文字体候选
+            candidates = [
+                '/system/fonts/NotoSansSC-Regular.otf',
+                '/system/fonts/NotoSansCJK-Regular.ttc',
+                '/system/fonts/DroidSansFallback.ttf',
+                '/system/fonts/SourceHanSansCN-Regular.otf',
+                '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+                '/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf',
+                '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc',
+                '/usr/share/fonts/truetype/arphic/ukai.ttf',
+                '/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf',
+            ]
+        
+        for font_path in candidates:
+            if os.path.exists(font_path):
+                LabelBase.register(name='Roboto', fn_regular=font_path)
+                return True
+        return False
+    except Exception:
+        return False
 
 if __name__ == "__main__":
+    # 直接运行原版应用，避免加载增强版入口
+    register_cjk_fonts()
     XChatAndroidApp().run()

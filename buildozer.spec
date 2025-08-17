@@ -12,6 +12,9 @@ package.domain = com.example
 # (str) Source code where the main.py live
 source.dir = .
 
+# (str) Name of the main.py file (defaults to main.py for kivy apps)
+# main.py = main.py
+
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
 

@@ -6,89 +6,64 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.spinner import Spinner
-from kivy.core.window import Window
-from kivy.metrics import dp, sp
-from kivy.animation import Animation
-from kivy.clock import Clock
 import threading
 import requests
 import random
 import os
-from kivy.core.text import LabelBase
 
-# Window配置 - 移动端适配
-Window.softinput_mode = "below_target"
-Window.keyboard_anim_args = {'d': .2, 't': 'in_out_expo'}
-Window.keyboard_mode = 'managed'
+# 设置中文字体支持
+# kivy.resources.resource_add_path('assets/fonts')
 
-# 配置区
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "sk-24f56defebb149a9a7c356d39296af07")  # 优先从环境变量读取
+# 配置区：从环境变量读取，避免将密钥打包进APK
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 USER_NAME = "用户"
 
-# 主题配置 - 使用Android兼容字体
+# 主题配置
 THEMES = {
-    "X-GPT": {"primary": "#1e88e5", "secondary": "#64b5f6", "accent": "#0d47a1", "font": "Roboto"},
-    "唐纳德": {"primary": "#e65100", "secondary": "#ed8936", "accent": "#bf360c", "font": "Roboto"},
-    "DickGPT兄弟": {"primary": "#9c27b0", "secondary": "#ba68c8", "accent": "#6a0080", "font": "Roboto"},
-    "原版DeepSeek": {"primary": "#0288d1", "secondary": "#4fc3f7", "accent": "#01579b", "font": "Roboto"}
+    "X-GPT": {"primary": "#1e88e5", "secondary": "#64b5f6", "accent": "#0d47a1", "font": "Microsoft YaHei"},
+    "唐纳德": {"primary": "#e65100", "secondary": "#ed8936", "accent": "#bf360c", "font": "Arial"},
+    "DickGPT兄弟": {"primary": "#9c27b0", "secondary": "#ba68c8", "accent": "#6a0080", "font": "Arial"},
+    "原版DeepSeek": {"primary": "#0288d1", "secondary": "#4fc3f7", "accent": "#01579b", "font": "SimHei"}
 }
 
 class ChatHistory(ScrollView):
     def __init__(self, **kwargs):
         super(ChatHistory, self).__init__(**kwargs)
-        self.layout = GridLayout(cols=1, size_hint_y=None, spacing=dp(5), padding=dp(10))
+        self.layout = GridLayout(cols=1, size_hint_y=None)
         self.layout.bind(minimum_height=self.layout.setter('height'))
         self.add_widget(self.layout)
 
-    def add_message(self, sender, message, color, animate=True):
+    def add_message(self, sender, message, color):
         # 添加发送者标签
         sender_label = Label(
-            text=f"{sender}:",
+            text=f"{sender}:\n",
             size_hint_y=None,
-            height=dp(25),
+            height=30,
             color=color,
-            font_size=sp(14),
-            halign='left',
-            text_size=(self.width - dp(20), None)
+            font_size=14,
+            halign='left'
         )
-        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)))
-        
+        self.layout.add_widget(sender_label)
+
         # 添加消息内容
         message_label = Label(
-            text=message,
+            text=f"{message}\n\n",
             size_hint_y=None,
             height=self.calculate_height(message),
             color=(1, 1, 1, 1),
-            font_size=sp(12),
+            font_size=12,
             halign='left',
-            text_size=(self.width - dp(40), None),
-            markup=True
+            text_size=(self.width - 20, None)
         )
-        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)))
-        
-        if animate:
-            # 添加淡入动画
-            sender_label.opacity = 0
-            message_label.opacity = 0
-            
-        self.layout.add_widget(sender_label)
         self.layout.add_widget(message_label)
-        
-        if animate:
-            # 执行淡入动画
-            Animation(opacity=1, duration=0.3).start(sender_label)
-            Animation(opacity=1, duration=0.3, t='out_expo').start(message_label)
 
-        # 延迟滚动到底部，确保动画完成后滚动
-        Clock.schedule_once(lambda dt: setattr(self, 'scroll_y', 0), 0.35 if animate else 0.1)
+        # 滚动到底部
+        self.scroll_y = 0
 
     def calculate_height(self, text):
-        # 更精确的文本高度计算
+        # 简单估算文本高度
         lines = text.count('\n') + 1
-        line_height = sp(16)
-        padding = dp(10)
-        return max(dp(30), lines * line_height + padding)
+        return max(30, lines * 20)
 
 class XChatAndroidApp(App):
     def __init__(self, **kwargs):
@@ -96,75 +71,40 @@ class XChatAndroidApp(App):
         self.assistant_type = "X-GPT"
 
     def build(self):
-        # 主布局 - 使用dp单位
-        main_layout = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
+        # 主布局
+        main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         main_layout.background_color = (0.1, 0.1, 0.1, 1)
 
-        # 标题栏 - 使用dp和sp单位
-        title_bar = BoxLayout(size_hint_y=None, height=dp(50), padding=dp(10))
+        # 标题栏
+        title_bar = BoxLayout(size_hint_y=None, height=50)
         title_label = Label(
             text="X-chat-GPT",
-            font_size=sp(20),
-            color=(1, 1, 1, 1),
-            halign='center'
+            font_size=20,
+            color=(1, 1, 1, 1)
         )
         title_bar.add_widget(title_label)
         title_bar.background_color = tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
         main_layout.add_widget(title_bar)
 
-        # 助手选择器区域 - 使用dp和sp单位
-        selector_layout = BoxLayout(size_hint_y=None, height=dp(50), spacing=dp(10), padding=[dp(5), 0])
-        selector_label = Label(
-            text="选择回答者:",
-            size_hint_x=None,
-            width=dp(100),
-            color=(1, 1, 1, 1),
-            font_size=sp(14)
-        )
-        selector_layout.add_widget(selector_label)
-
-        self.assistant_spinner = Spinner(
-            text=self.assistant_type,
-            values=list(THEMES.keys()),
-            size_hint_x=None,
-            width=dp(180),
-            background_normal='',
-            background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            color=(1, 1, 1, 1),
-            font_size=sp(14)
-        )
-        self.assistant_spinner.bind(text=self.on_assistant_change)
-        selector_layout.add_widget(self.assistant_spinner)
-        
-        # 添加一些弹性空间
-        selector_layout.add_widget(Label())
-        main_layout.add_widget(selector_layout)
-
         # 聊天历史
         self.chat_history = ChatHistory(size_hint_y=1)
         main_layout.add_widget(self.chat_history)
 
-        # 输入区域 - 使用dp和sp单位，优化移动端体验
-        input_layout = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(10), padding=[0, dp(5)])
+        # 输入区域
+        input_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
         self.input_box = TextInput(
             hint_text="输入消息...",
-            font_size=sp(16),
+            font_size=16,
             background_color=(0.2, 0.2, 0.2, 1),
-            foreground_color=(1, 1, 1, 1),
-            multiline=False,
-            size_hint_x=0.8,
-            padding=[dp(10), dp(10)]
+            foreground_color=(1, 1, 1, 1)
         )
-        # 绑定回车键发送消息
-        self.input_box.bind(on_text_validate=self.send_message)
         input_layout.add_widget(self.input_box)
 
         self.send_btn = Button(
             text="发送",
-            font_size=sp(16),
+            font_size=16,
             background_color=tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            color=(1, 1, 1, 1),
-            size_hint_x=0.2
+            color=(1, 1, 1, 1)
         )
         self.send_btn.bind(on_press=self.send_message)
         input_layout.add_widget(self.send_btn)
@@ -172,56 +112,17 @@ class XChatAndroidApp(App):
         main_layout.add_widget(input_layout)
 
         # 初始消息
-        Clock.schedule_once(lambda dt: self.chat_history.add_message(
-            "系统", 
-            "你好！欢迎使用X-chat-GPT。选择一个回答者，然后输入您的问题。", 
-            (0.6, 0.2, 0.8, 1), 
-            animate=True
-        ), 0.5)
+        self.chat_history.add_message("系统", "你好！欢迎使用X-chat-GPT。请输入您的问题。", (0.6, 0.2, 0.8, 1))
 
         return main_layout
 
-    def on_assistant_change(self, spinner, text):
-        """处理助手选择变化 - 添加动画效果"""
-        self.assistant_type = text
-        
-        # 更新UI主题颜色 - 添加颜色变化动画
-        primary_color = tuple(int(THEMES[self.assistant_type]["primary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
-        
-        # 按钮颜色变化动画
-        Animation(background_color=primary_color, duration=0.3, t='out_expo').start(self.assistant_spinner)
-        Animation(background_color=primary_color, duration=0.3, t='out_expo').start(self.send_btn)
-        
-        # 添加切换通知消息
-        assistant_names = {
-            "X-GPT": "X-GPT 专业助手",
-            "唐纳德": "特朗普风格助手",
-            "DickGPT兄弟": "DickGPT 兄弟",
-            "原版DeepSeek": "原版 DeepSeek"
-        }
-        
-        secondary_color = tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,)
-        Clock.schedule_once(lambda dt: self.chat_history.add_message(
-            "系统", 
-            f"已切换到 {assistant_names.get(text, text)}，准备为您服务！", 
-            secondary_color,
-            animate=True
-        ), 0.3)
-        
     def send_message(self, instance):
         user_input = self.input_box.text.strip()
         if not user_input:
             return
 
-        # 添加发送按钮按压动画
-        original_size = self.send_btn.size
-        shrink_anim = Animation(size=(original_size[0] * 0.9, original_size[1] * 0.9), duration=0.1)
-        expand_anim = Animation(size=original_size, duration=0.1)
-        shrink_anim.bind(on_complete=lambda *args: expand_anim.start(self.send_btn))
-        shrink_anim.start(self.send_btn)
-
         # 添加用户消息
-        self.chat_history.add_message(USER_NAME, user_input, (0.2, 0.8, 0.2, 1), animate=True)
+        self.chat_history.add_message(USER_NAME, user_input, (0.2, 0.8, 0.2, 1))
         self.input_box.text = ""
 
         # 显示加载状态
@@ -231,13 +132,8 @@ class XChatAndroidApp(App):
             "DickGPT兄弟": "💨 尾部加速中...准备真理喷射！",
             "原版DeepSeek": "🔍 正在思考..."
         }
-        
-        Clock.schedule_once(lambda dt: self.chat_history.add_message(
-            self.assistant_type, 
-            loading_messages.get(self.assistant_type, "🔍 正在处理..."),
-            tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-            animate=True
-        ), 0.2)
+        self.chat_history.add_message(self.assistant_type, loading_messages.get(self.assistant_type, "🔍 正在处理..."),
+                                      tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,))
 
         # 在单独的线程中调用API
         threading.Thread(target=self.get_api_response, args=(user_input,), daemon=True).start()
@@ -245,12 +141,8 @@ class XChatAndroidApp(App):
     def get_api_response(self, user_input):
         try:
             response = self.call_deepseek_api(user_input)
-            Clock.schedule_once(lambda dt: self.chat_history.add_message(
-                self.assistant_type, 
-                response,
-                tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,),
-                animate=True
-            ), 0)
+            self.chat_history.add_message(self.assistant_type, response,
+                                          tuple(int(THEMES[self.assistant_type]["secondary"][i:i+2], 16)/255 for i in (1, 3, 5)) + (1,))
         except Exception as e:
             error_messages = {
                 "X-GPT": f"❌ 任务处理失败: {str(e)}",
@@ -258,20 +150,15 @@ class XChatAndroidApp(App):
                 "DickGPT兄弟": f"💥 获取响应失败: {str(e)}",
                 "原版DeepSeek": f"❌ 请求失败: {str(e)}"
             }
-            Clock.schedule_once(lambda dt: self.chat_history.add_message(
-                self.assistant_type, 
-                error_messages.get(self.assistant_type, f"❌ 任务处理失败: {str(e)}"),
-                (1, 0, 0, 1),
-                animate=True
-            ), 0)
+            self.chat_history.add_message(self.assistant_type, error_messages.get(self.assistant_type, f"❌ 任务处理失败: {str(e)}"),
+                                          (1, 0, 0, 1))
 
     def call_deepseek_api(self, prompt):
         """调用DeepSeek API并返回响应"""
         try:
-            # API密钥校验
-            if not DEEPSEEK_API_KEY or len(DEEPSEEK_API_KEY) < 10:
-                return "❌ API密钥无效或未设置。请配置环境变量 DEEPSEEK_API_KEY 或检查配置。"
-            
+            if not DEEPSEEK_API_KEY:
+                # 在未配置密钥时，返回演示响应，避免在APK中暴露密钥
+                return "ℹ️ 未配置API密钥（DEEPSEEK_API_KEY）。这是打包演示版本的示例回复。"
             headers = {
                 "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
                 "Content-Type": "application/json"
@@ -299,10 +186,10 @@ class XChatAndroidApp(App):
                 "max_tokens": 1000
             }
 
-            # 优化超时和重试策略 - 减少超时时间提升响应性能
+            # 添加超时参数和重试机制
             max_retries = 2
             retry_count = 0
-            timeout = 15  # 从30秒优化为15秒
+            timeout = 30
             response = None
 
             while retry_count <= max_retries:
@@ -318,52 +205,20 @@ class XChatAndroidApp(App):
                 except requests.exceptions.Timeout as e:
                     retry_count += 1
                     if retry_count > max_retries:
-                        raise requests.exceptions.Timeout("API响应超时，请检查网络连接或稍后重试")
+                        raise
                 except requests.exceptions.RequestException as e:
                     raise
 
             if not response or not response.json().get("choices") or len(response.json()["choices"]) == 0:
-                return "❌ API响应错误，请稍后重试"
+                return "❌ API响应错误"
 
             raw_response = response.json()["choices"][0]["message"]["content"]
             return raw_response
 
-        except requests.exceptions.Timeout:
-            return "⏰ 请求超时(15秒)，请检查网络连接或稍后重试"
-        except requests.exceptions.ConnectionError:
-            return "🌐 网络连接失败，请检查网络设置"
-        except requests.exceptions.HTTPError as e:
-            if "401" in str(e):
-                return "🔑 API密钥无效，请检查配置"
-            elif "429" in str(e):
-                return "⏳ API调用频率限制，请稍后重试"
-            else:
-                return f"❌ HTTP错误: {str(e)}"
         except Exception as e:
             return f"❌ API请求失败: {str(e)}"
 
-# 使用系统内置中文字体作为 Kivy 默认字体（覆盖 Roboto），避免中文显示为未知符号
-try:
-    def _register_cjk_font_fallback():
-        candidates = [
-            '/system/fonts/NotoSansSC-Regular.otf',
-            '/system/fonts/NotoSansCJK-Regular.ttc',
-            '/system/fonts/NotoSansSC-Regular.ttf',
-            '/system/fonts/DroidSansFallback.ttf',
-            '/system/fonts/SourceHanSansCN-Regular.otf',
-            '/system/fonts/SourceHanSansCN-Regular.ttf',
-        ]
-        for p in candidates:
-            if os.path.exists(p):
-                # 覆盖默认字体名称为 Roboto，使所有未显式指定 font_name 的 Label 使用该中文字体
-                LabelBase.register(name='Roboto', fn_regular=p)
-                return p
-        return None
-
-    _register_cjk_font_fallback()
-except Exception:
-    # 忽略字体注册失败，保持原样（可能仅影响中文显示）
-    pass
-
+from xchat.__main__ import XChatAndroidApp as OriginalXChatAndroidApp
 if __name__ == "__main__":
-    XChatAndroidApp().run()
+    # 使用 xchat 原版界面（含角色切换）作为入口
+    OriginalXChatAndroidApp().run()
