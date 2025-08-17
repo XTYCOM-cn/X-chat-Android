@@ -220,5 +220,5 @@ class XChatAndroidApp(App):
 
 from xchat.__main__ import XChatAndroidApp as OriginalXChatAndroidApp
 if __name__ == "__main__":
-    # 使用 xchat 原版界面（含角色切换）作为入口
+    # 直接运行主界面（已禁用启动页）
     OriginalXChatAndroidApp().run()

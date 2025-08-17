@@ -70,9 +70,11 @@ class XChatAndroidApp(App):
         
         # 首次启动显示启动页
         if not self.splash_shown:
+            # 禁用启动页：直接进入主界面，避免部分设备黑屏
             self.splash_shown = True
-            print("[XChat] Returning SplashScreen as root")
-            return SplashScreen(title=sanitize_text("X-chat-GPT"), subtitle=sanitize_text("智能对话助手"), on_complete=self.on_splash_complete)
+            print("[XChat] Splash disabled; building main UI directly")
+            # 直接继续构建主界面（不返回 SplashScreen）
+            # 不return，这样会执行下面主界面构建逻辑
         
         # 应用增强主题配色
         theme = self.theme_manager.get_current_theme()
