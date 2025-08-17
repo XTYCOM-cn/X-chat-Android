@@ -870,7 +870,7 @@ class ChatHistory(ScrollView):
         sender_label = Label(
             text=f"[b]{sender}[/b]",
             markup=True,
-            color=_text_color,
+            color=color,
             size_hint_y=None,
             height=dp(30),
             text_size=(None, None),
@@ -884,7 +884,7 @@ class ChatHistory(ScrollView):
         message_label = Label(
             text=f"[b]{message}[/b]",
             markup=True,
-            color=_text_color,
+            color=color,
             size_hint_y=None,
             text_size=(None, None),
             halign="left",
