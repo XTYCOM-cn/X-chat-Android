@@ -245,6 +245,8 @@ class XChatAndroidApp(App):
         
         # 绑定自定义长按中文菜单
         self.input_box.bind(on_touch_down=self.on_input_touch_down)
+        self.input_box.bind(on_touch_up=self.on_input_touch_up)
+        self.input_box.bind(on_touch_move=self.on_input_touch_move)
         
         # 添加输入框边框效果
         with input_container.canvas.before:
@@ -284,7 +286,7 @@ class XChatAndroidApp(App):
         self.send_btn = Button(
             text=f"[b]{sanitize_text(self.get_send_button_text())}[/b]",
             markup=True,
-            shorten=True,
+            shorten=False,
             font_size=sp(18),
             background_color=hex_to_rgba(theme['primary']),
             background_normal='',  # 移除默认背景
@@ -292,8 +294,30 @@ class XChatAndroidApp(App):
             size_hint_x=0.2,
             font_name='Roboto'
         )
-        # 根据按钮宽度动态设置 text_size，以启用省略显示防止溢出
-        self.send_btn.bind(size=lambda inst, val: setattr(inst, 'text_size', (inst.width - dp(10), None)))
+        # 自适应按钮字体，保证不同设备宽度下完整显示文案
+        def _fit_send_btn_font_size(*args):
+            try:
+                base = sp(18)
+                min_fs = sp(14)
+                # 重置到基础字号再评估
+                self.send_btn.font_size = base
+                # 强制更新纹理，获取文本宽度
+                self.send_btn.texture_update()
+                avail = max(0, self.send_btn.width - dp(16))
+                if avail <= 0:
+                    return
+                # 如果文本宽度超过可用宽度，则逐步减小字号
+                guard = 0
+                while self.send_btn.texture_size[0] > avail and self.send_btn.font_size > min_fs and guard < 20:
+                    self.send_btn.font_size -= 1
+                    self.send_btn.texture_update()
+                    guard += 1
+            except Exception as e:
+                print(f"[XChat] fit send btn font error: {e}")
+        # 在尺寸变化、文本变化时尝试适配字号
+        self.send_btn.bind(size=lambda *_: _fit_send_btn_font_size(), text=lambda *_: _fit_send_btn_font_size())
+        # 初始布局完成后再适配一次，以避免初始宽度为0
+        Clock.schedule_once(lambda dt: _fit_send_btn_font_size(), 0)
         self.send_btn.bind(on_press=self.send_message)
         input_layout.add_widget(self.send_btn)
 
@@ -835,11 +859,18 @@ class ChatHistory(ScrollView):
         sender = sanitize_text(sender)
         message = sanitize_text(message)
         
-        # 创建发送者标签，粗体+颜色
+        # 创建发送者标签，粗体（不改变颜色，使用主题文字色）
+        try:
+            from kivy.app import App
+            app = App.get_running_app()
+            theme = app.theme_manager.get_current_theme() if app and hasattr(app, 'theme_manager') else {}
+            _text_color = hex_to_rgba(theme.get('text_primary', '#FFFFFF'))
+        except Exception:
+            _text_color = (1, 1, 1, 1)
         sender_label = Label(
             text=f"[b]{sender}[/b]",
             markup=True,
-            color=color,
+            color=_text_color,
             size_hint_y=None,
             height=dp(30),
             text_size=(None, None),
@@ -849,17 +880,17 @@ class ChatHistory(ScrollView):
         )
         # 单行标题无需绑定 size→text_size，避免布局反馈循环
 
-        # 创建消息标签
+        # 创建消息标签（加粗 + 大一号，不改变颜色）
         message_label = Label(
             text=f"[b]{message}[/b]",
             markup=True,
-            color=color,
+            color=_text_color,
             size_hint_y=None,
             text_size=(None, None),
             halign="left",
             valign="top",
             font_name='Roboto',
-            font_size=sp(16)
+            font_size=sp(18)
         )
         
         # 动态调整标签高度以适应多行文本
