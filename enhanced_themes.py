@@ -141,8 +141,9 @@ ENHANCED_THEMES = {
             "primary": "#FF8C00",      # 标准特朗普橙色
             "secondary": "#FFA500",    # 亮橙色
             "accent": "#FF4500",       # 深橙红
-            "background": "#2d1b69",   # 深紫色背景
-            "surface": "#3e2a7a",      # 稍浅的紫色表面
+            "background": "#8B3E00",   # 深橙色背景（接近深色的特朗普橙）
+            "surface": "#A45100",      # 稍浅一点的深橙色表面
+            "divider": "#B65C00",      # 深橙系分割线
             "error": "#d32f2f",
             
             "text_primary": "#ffffff",

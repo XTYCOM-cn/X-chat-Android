@@ -416,7 +416,7 @@ class ChatHistory(ScrollView):
         
         # 添加发送者标签 - 使用更明确的颜色对比
         sender_label = Label(
-            text=f"● {sender}",
+            text=f"{sender}",
             size_hint_y=None,
             height=dp(25),
             color=color,
