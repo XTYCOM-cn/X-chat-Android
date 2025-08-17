@@ -712,15 +712,19 @@ class ChatHistory(ScrollView):
         sender_label = Label(
             text=f"{sender}",
             size_hint_y=None,
-            height=dp(25),
+            size_hint_x=1,
             color=color,
             font_size=sp(14),
             halign='left',
+            valign='top',
             text_size=(self.width - dp(20), None),
             font_name='Roboto',
             markup=True
         )
-        sender_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)))
+        sender_label.bind(
+            width=lambda instance, value: setattr(instance, 'text_size', (value - dp(20), None)),
+            texture_size=lambda instance, value: setattr(instance, 'height', max(dp(25), value[1] + dp(6)))
+        )
         
         # 添加消息内容 - 增强对比度
         message_color = (0.95, 0.95, 0.95, 1) if sender != "系统" else (0.8, 0.8, 0.8, 1)
@@ -728,15 +732,19 @@ class ChatHistory(ScrollView):
         message_label = Label(
             text=message,
             size_hint_y=None,
-            height=self.calculate_height(message),
+            size_hint_x=1,
             color=message_color,
             font_size=sp(13),
             halign='left',
+            valign='top',
             text_size=(self.width - dp(40), None),
             markup=True,
             font_name='Roboto'
         )
-        message_label.bind(width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)))
+        message_label.bind(
+            width=lambda instance, value: setattr(instance, 'text_size', (value - dp(40), None)),
+            texture_size=lambda instance, value: setattr(instance, 'height', max(dp(30), value[1] + dp(10)))
+        )
         
         if animate:
             # 添加淡入动画
