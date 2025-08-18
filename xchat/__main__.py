@@ -327,7 +327,7 @@ class XChatAndroidApp(App):
         Clock.schedule_once(lambda dt: self.chat_history.add_message(
             "系统", 
             theme['greeting'], 
-            hex_to_rgba(theme['secondary']), 
+            hex_to_rgba(theme['text_primary']), 
             animate=True
         ), 0.5)
 
@@ -607,13 +607,13 @@ class XChatAndroidApp(App):
         print("[XChat] API key validation passed, proceeding with message")
         
         # 添加用户消息到聊天历史
-        self.chat_history.add_message(USER_NAME, user_text, hex_to_rgba(theme['user_bubble']))
+        self.chat_history.add_message(USER_NAME, user_text, hex_to_rgba(theme['text_primary']))
         self.input_box.text = ""
         
         # 立即显示根据助手类型的等待提示
         waiting = self.get_waiting_message()
         waiting = sanitize_text(waiting)
-        self.chat_history.add_message("系统", waiting, hex_to_rgba(theme['system_bubble']))
+        self.chat_history.add_message("系统", waiting, hex_to_rgba(theme['text_primary']))
         
         # 异步获取API响应
         threading.Thread(target=self.get_api_response, args=(user_text,), daemon=True).start()
@@ -631,7 +631,7 @@ class XChatAndroidApp(App):
             Clock.schedule_once(lambda dt: self._update_response(
                 theme['role_name'], 
                 response_text, 
-                hex_to_rgba(theme['bot_bubble'])
+                hex_to_rgba(theme['text_primary'])
             ), 0)
 
         except Exception as e:
